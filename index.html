@@ -325,24 +325,19 @@
       document.getElementById('admin-bar').classList.remove('hidden');
     }
 
-    // Firebase config
-    const config = getStoredConfig();
-    if (config && config.databaseURL) {
-      const ok = initFirebase(config);
-      if (ok) {
-        showScreen('screen-login');
-        return;
-      }
+    // Firebase config — hardcoded for production
+    const FIREBASE_URL = 'https://ga-vehicles-default-rtdb.europe-west1.firebasedatabase.app';
+    const config = { databaseURL: FIREBASE_URL };
+    const ok = initFirebase(config);
+    if (ok) {
+      showScreen('screen-login');
+      return;
     }
 
-    // No config — show setup for admin, demo for others
-    if (isAdmin && !getStoredConfig()) {
-      showScreen('screen-setup');
-    } else {
-      initDemoMode();
-      showScreen('screen-login');
-      document.getElementById('demo-badge').classList.remove('hidden');
-    }
+    // Fallback to demo mode if Firebase fails
+    initDemoMode();
+    showScreen('screen-login');
+    document.getElementById('demo-badge').classList.remove('hidden');
   }
 
   function enterApp() {
