@@ -215,7 +215,7 @@
   // ============================================================
   // CONFIG
   // ============================================================
-  const DEALER_LIMIT = 1; // max počet vozidiel na dealera (celkovo, nie per model)
+  const DEALER_LIMIT = 1; // max počet vozidiel na dealera PER MODEL (nie celkovo)
 
   // ============================================================
   // STATE
@@ -227,8 +227,8 @@
   let isFirebaseMode = false;
   let dbRef = null;
 
-  function getDealerCount(dealer) {
-    return VEHICLES.filter(v => (vehicleState[v.vin] || {}).dealer === dealer).length;
+  function getDealerCount(dealer, model) {
+    return VEHICLES.filter(v => v.model === model && (vehicleState[v.vin] || {}).dealer === dealer).length;
   }
 
   // ============================================================
@@ -417,7 +417,7 @@
     }
     empty.classList.add('hidden');
 
-    const dealerCount = getDealerCount(currentDealer);
+    const dealerCount = getDealerCount(currentDealer, currentTab);
     const limitReached = dealerCount >= DEALER_LIMIT && !isAdmin;
 
     grid.innerHTML = filtered.map(v => {
@@ -486,7 +486,7 @@
       else taken++;
     });
     document.getElementById('stat-available').textContent = available;
-    const globalMine = getDealerCount(currentDealer);
+    const globalMine = getDealerCount(currentDealer, currentTab);
     document.getElementById('stat-mine').textContent = globalMine;
     document.getElementById('stat-limit').textContent = `/ ${DEALER_LIMIT}`;
     document.getElementById('stat-taken').textContent = taken;
@@ -506,8 +506,9 @@
   function claimVehicle(vin) {
     if (!currentDealer) return;
 
-    // Double-check limit (safety net)
-    if (!isAdmin && getDealerCount(currentDealer) >= DEALER_LIMIT) {
+    // Double-check limit (safety net) — per model
+    const vehicleModel = VEHICLES.find(v => v.vin === vin)?.model;
+    if (!isAdmin && getDealerCount(currentDealer, vehicleModel) >= DEALER_LIMIT) {
       toast(`Limit ${DEALER_LIMIT} vozidlo/á na predajcu bol dosiahnutý`, 'warning');
       renderVehicles();
       return;
