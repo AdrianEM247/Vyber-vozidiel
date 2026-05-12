@@ -326,27 +326,41 @@ async function loadData() {
   }
 }
 
-// ── API layer: JSONP first (most reliable) → fetch fallbacks ──
+// ── API layer: Worker V4 (reads from Google Sheets CSV) → JSONP → GAS fetch ──
+
+const READ_ACTIONS = ['getVehicles', 'getAllData', 'getFreeVehicles', 'getDealers'];
 
 async function apiCall(action, params = {}, retries = 2) {
   const errors = [];
+  const isRead = READ_ACTIONS.includes(action);
 
   for (let i = 0; i < retries; i++) {
-    // 1. JSONP — most reliable from browsers (bypasses CORS, follows redirects natively)
+    if (isRead) {
+      // READ: Worker V4 first (reads CSV from docs.google.com — works even if script.google.com is blocked)
+      try {
+        return await apiFetchCors(action, params, WORKER_URL);
+      } catch (e) {
+        errors.push('Worker: ' + e.message);
+      }
+    }
+
+    // JSONP — direct to GAS (works for most users)
     try {
       return await apiFetchJsonp(action, params);
     } catch (e) {
       errors.push('JSONP: ' + e.message);
     }
 
-    // 2. Worker proxy
-    try {
-      return await apiFetchCors(action, params, WORKER_URL);
-    } catch (e) {
-      errors.push('Worker: ' + e.message);
+    if (!isRead) {
+      // WRITE: also try Worker proxy to GAS
+      try {
+        return await apiFetchCors(action, params, WORKER_URL);
+      } catch (e) {
+        errors.push('Worker: ' + e.message);
+      }
     }
 
-    // 3. Direct GAS fetch
+    // Direct GAS fetch (last resort)
     try {
       return await apiFetchCors(action, params, GAS_URL);
     } catch (e) {
