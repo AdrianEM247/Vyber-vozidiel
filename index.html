@@ -231,9 +231,11 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
 // =============================================
-// CONFIG — REPLACE WITH YOUR APPS SCRIPT URL
+// CONFIG
 // =============================================
-const API_URL = 'https://script.google.com/macros/s/AKfycbxscm5-VbIPQZOYFcBJ3rfdSkYjSxFOfyymnEanpESQrntOA22e5OZg7ROkhZEm1WTC/exec';
+const WORKER_URL = 'https://oj-vehicles-api.amarkusek.workers.dev';
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbxscm5-VbIPQZOYFcBJ3rfdSkYjSxFOfyymnEanpESQrntOA22e5OZg7ROkhZEm1WTC/exec';
+const API_URL = WORKER_URL; // Primary: Cloudflare Worker proxy (GAS_URL as fallback)
 
 // =============================================
 // STATE
@@ -326,31 +328,37 @@ async function loadData() {
 
 // ── API layer: fetch (CORS) → JSONP fallback → retry ──
 
-async function apiCall(action, params = {}, retries = 3) {
+async function apiCall(action, params = {}, retries = 2) {
   let lastError;
+  // Try Worker proxy first, then direct GAS, with retries
+  const endpoints = [WORKER_URL, GAS_URL];
   for (let i = 0; i < retries; i++) {
-    try {
-      return await apiFetchCors(action, params);
-    } catch (e1) {
+    for (const baseUrl of endpoints) {
       try {
-        return await apiFetchJsonp(action, params);
-      } catch (e2) {
-        lastError = e2;
-        if (i < retries - 1) await new Promise(r => setTimeout(r, 1000 * (i + 1)));
+        return await apiFetchCors(action, params, baseUrl);
+      } catch (e) {
+        lastError = e;
       }
+    }
+    // Also try JSONP as last resort (direct to GAS)
+    try {
+      return await apiFetchJsonp(action, params);
+    } catch (e) {
+      lastError = e;
+      if (i < retries - 1) await new Promise(r => setTimeout(r, 1500));
     }
   }
   throw lastError;
 }
 
-// Primary: fetch with CORS (follows Google Apps Script redirect)
-function apiFetchCors(action, params = {}) {
+// fetch with CORS
+function apiFetchCors(action, params = {}, baseUrl = API_URL) {
   return new Promise((resolve, reject) => {
-    const url = new URL(API_URL);
+    const url = new URL(baseUrl);
     url.searchParams.set('action', action);
     Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
 
-    const timeout = setTimeout(() => reject(new Error('Timeout (fetch)')), 20000);
+    const timeout = setTimeout(() => reject(new Error('Timeout')), 15000);
 
     fetch(url.toString(), { redirect: 'follow' })
       .then(res => {
@@ -366,14 +374,14 @@ function apiFetchCors(action, params = {}) {
   });
 }
 
-// Fallback: JSONP — bypasses CORS by injecting <script> tags
+// JSONP fallback (direct to GAS)
 function apiFetchJsonp(action, params = {}) {
   return new Promise((resolve, reject) => {
     const cbName = '_jsonp_' + Date.now() + '_' + Math.random().toString(36).slice(2);
     const timeout = setTimeout(() => {
       cleanup();
       reject(new Error('Timeout — server neodpovedá'));
-    }, 20000);
+    }, 15000);
 
     function cleanup() {
       clearTimeout(timeout);
@@ -386,7 +394,7 @@ function apiFetchJsonp(action, params = {}) {
       resolve(data);
     };
 
-    const url = new URL(API_URL);
+    const url = new URL(GAS_URL);
     url.searchParams.set('action', action);
     url.searchParams.set('callback', cbName);
     Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
