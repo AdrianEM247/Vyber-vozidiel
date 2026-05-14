@@ -201,6 +201,9 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif
         <option value="invoiced">Fakturované</option>
         <option value="not invoiced yet">Nefakturované</option>
       </select>
+      <select id="filterDealer" onchange="renderVehicles()" style="display:none">
+        <option value="">Všetci díleri</option>
+      </select>
       <select id="filterStatus" onchange="renderVehicles()">
         <option value="">Všetky statusy</option>
         <option value="registrované">Registrované</option>
@@ -245,6 +248,8 @@ let dealerName = '';
 let vehicles = [];
 let pendingChanges = {};
 
+let isAdmin = false;
+
 const DEALERS = {
   "OSK0010": "BUILT, spol. s r.o. (OSK0010)",
   "OSK0011": "BUILT, spol. s r.o. (OSK0011)",
@@ -270,6 +275,17 @@ const DEALERS = {
 // =============================================
 (function init() {
   const sel = document.getElementById('dealerSelect');
+  // Admin option
+  const adminOpt = document.createElement('option');
+  adminOpt.value = 'ADMIN';
+  adminOpt.textContent = '🔑 ADMIN — všetci díleri';
+  sel.appendChild(adminOpt);
+  // Separator
+  const sepOpt = document.createElement('option');
+  sepOpt.disabled = true;
+  sepOpt.textContent = '────────────────────';
+  sel.appendChild(sepOpt);
+  // Dealer options
   Object.entries(DEALERS).sort((a,b) => a[1].localeCompare(b[1])).forEach(([code, name]) => {
     const opt = document.createElement('option');
     opt.value = code;
@@ -289,18 +305,30 @@ const DEALERS = {
 function login() {
   const code = document.getElementById('dealerSelect').value;
   if (!code) return;
-  currentDealer = code;
-  dealerName = DEALERS[code] || code;
+  isAdmin = (code === 'ADMIN');
+  currentDealer = isAdmin ? 'ADMIN' : code;
+  dealerName = isAdmin ? 'ADMIN' : (DEALERS[code] || code);
   sessionStorage.setItem('dealer', code);
   document.getElementById('loginScreen').style.display = 'none';
   document.getElementById('app').style.display = 'block';
-  document.getElementById('dealerLabel').textContent = dealerName;
+  document.getElementById('dealerLabel').textContent = isAdmin ? '🔑 ADMIN — všetci díleri' : dealerName;
+  // Admin: show dealer filter, hide add-vehicle section
+  document.querySelector('.add-section').style.display = isAdmin ? 'none' : 'block';
+  document.getElementById('filterDealer').style.display = isAdmin ? '' : 'none';
+  if (isAdmin) {
+    const df = document.getElementById('filterDealer');
+    df.innerHTML = '<option value="">Všetci díleri</option>';
+    Object.entries(DEALERS).sort((a,b) => a[1].localeCompare(b[1])).forEach(([c, n]) => {
+      df.innerHTML += `<option value="${c}">${c} — ${n.split('(')[0].trim()}</option>`;
+    });
+  }
   loadData();
 }
 
 function logout() {
   sessionStorage.removeItem('dealer');
   currentDealer = null;
+  isAdmin = false;
   pendingChanges = {};
   document.getElementById('app').style.display = 'none';
   document.getElementById('loginScreen').style.display = 'flex';
@@ -313,7 +341,9 @@ function logout() {
 async function loadData() {
   showLoading('vehiclesContainer');
   try {
-    const res = await apiCall('getVehicles', { code: currentDealer });
+    const res = isAdmin
+      ? await apiCall('getAllData')
+      : await apiCall('getVehicles', { code: currentDealer });
     vehicles = res.vehicles || [];
     renderVehicles();
   } catch (err) {
@@ -460,8 +490,10 @@ function renderVehicles() {
   const search = document.getElementById('searchMy').value.toLowerCase();
   const invoiceFilter = document.getElementById('filterInvoice').value;
   const statusFilter = document.getElementById('filterStatus').value;
+  const dealerFilter = isAdmin ? document.getElementById('filterDealer').value : '';
 
   let filtered = vehicles.filter(v => {
+    if (dealerFilter && v.DealerCode !== dealerFilter) return false;
     if (search && !`${v.VIN} ${v.Vozidlo}`.toLowerCase().includes(search)) return false;
     if (invoiceFilter && v.InvoiceStatus !== invoiceFilter) return false;
     if (statusFilter === '__none__') {
@@ -483,7 +515,7 @@ function renderVehicles() {
 
   let html = `<table class="vehicle-table">
     <thead><tr>
-      <th>#</th><th>VIN</th><th>Vozidlo</th><th>Faktúra</th><th>Stav registrácie</th>
+      <th>#</th>${isAdmin ? '<th>Díler</th>' : ''}<th>VIN</th><th>Vozidlo</th><th>Faktúra</th><th>Stav registrácie</th>
     </tr></thead><tbody>`;
 
   filtered.forEach((v, i) => {
@@ -495,19 +527,24 @@ function renderVehicles() {
     const invLabel = v.InvoiceStatus === 'invoiced' ? 'Fakturované' :
                      v.InvoiceStatus === 'not invoiced yet' ? 'Nefakturované' : '';
     const invClass = v.InvoiceStatus === 'invoiced' ? 'inv' : v.InvoiceStatus ? 'notinv' : '';
+    const statusLabel = status === 'registrované' ? 'Registrované' :
+                        status === 'bude registrované v máji' ? 'Bude registrované v máji' :
+                        status === 'môže byť registrované v máji' ? 'Môže byť registrované v máji' : '—';
 
     html += `<tr class="${isAdded ? 'added-row' : ''}">
       <td>${i + 1}</td>
+      ${isAdmin ? `<td style="font-size:12px">${v.DealerCode}<br><span style="color:var(--text-muted);font-size:11px">${v.DealerName || ''}</span></td>` : ''}
       <td class="vin-cell">${v.VIN}${isAdded ? ' <span class="added-badge">DOPLNENÉ</span>' : ''}</td>
       <td class="model-cell">${v.Vozidlo || '—'}</td>
       <td>${invLabel ? `<span class="invoice-badge ${invClass}">${invLabel}</span>` : '—'}</td>
-      <td>
-        <select class="status-select ${sClass}" onchange="setStatus('${v.VIN}', this.value, this)">
+      <td>${isAdmin
+        ? `<span class="status-select ${sClass}" style="display:inline-block;cursor:default">${statusLabel}</span>`
+        : `<select class="status-select ${sClass}" onchange="setStatus('${v.VIN}', this.value, this)">
           <option value="" ${!status ? 'selected' : ''}>— Vyberte —</option>
           <option value="registrované" ${status === 'registrované' ? 'selected' : ''}>Registrované</option>
           <option value="bude registrované v máji" ${status === 'bude registrované v máji' ? 'selected' : ''}>Bude registrované v máji</option>
           <option value="môže byť registrované v máji" ${status === 'môže byť registrované v máji' ? 'selected' : ''}>Môže byť registrované v máji</option>
-        </select>
+        </select>`}
       </td>
     </tr>`;
   });
@@ -659,35 +696,66 @@ function exportExcel() {
     return;
   }
 
-  const rows = filtered.map((v, i) => ({
-    '#': i + 1,
-    'VIN': v.VIN,
-    'Vozidlo': v.Vozidlo || '',
-    'Faktúra': v.InvoiceStatus === 'invoiced' ? 'Fakturované' : v.InvoiceStatus === 'not invoiced yet' ? 'Nefakturované' : '',
-    'Stav registrácie': pendingChanges[v.VIN] ?? v.RegistrationStatus ?? '',
-    'Dealer': v.DealerName || dealerName,
-    'Doplnené dílerom': v.AddedByDealer === 'áno' ? 'Áno' : 'Nie'
-  }));
-
-  const ws = XLSX.utils.json_to_sheet(rows);
-
-  // Column widths
-  ws['!cols'] = [
-    { wch: 4 },   // #
-    { wch: 20 },  // VIN
-    { wch: 45 },  // Vozidlo
-    { wch: 15 },  // Faktúra
-    { wch: 30 },  // Stav registrácie
-    { wch: 35 },  // Dealer
-    { wch: 16 }   // Doplnené dílerom
-  ];
-
   const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, 'Vozidlá');
+
+  // Admin: add summary sheet first
+  if (isAdmin) {
+    const dealerCodes = [...new Set(vehicles.map(v => v.DealerCode))].sort();
+    const summaryRows = dealerCodes.map(code => {
+      const dv = vehicles.filter(v => v.DealerCode === code);
+      const dName = dv[0]?.DealerName || code;
+      return {
+        'Díler': dName,
+        'Kód': code,
+        'Celkom': dv.length,
+        'Registrované': dv.filter(v => (pendingChanges[v.VIN] ?? v.RegistrationStatus) === 'registrované').length,
+        'Bude registrované': dv.filter(v => (pendingChanges[v.VIN] ?? v.RegistrationStatus) === 'bude registrované v máji').length,
+        'Môže byť registrované': dv.filter(v => (pendingChanges[v.VIN] ?? v.RegistrationStatus) === 'môže byť registrované v máji').length,
+        'Bez statusu': dv.filter(v => !(pendingChanges[v.VIN] ?? v.RegistrationStatus)).length,
+        'Doplnené dílerom': dv.filter(v => v.AddedByDealer === 'áno').length,
+      };
+    });
+    // Totals
+    summaryRows.push({
+      'Díler': 'CELKOM',
+      'Kód': '',
+      'Celkom': summaryRows.reduce((s, r) => s + r['Celkom'], 0),
+      'Registrované': summaryRows.reduce((s, r) => s + r['Registrované'], 0),
+      'Bude registrované': summaryRows.reduce((s, r) => s + r['Bude registrované'], 0),
+      'Môže byť registrované': summaryRows.reduce((s, r) => s + r['Môže byť registrované'], 0),
+      'Bez statusu': summaryRows.reduce((s, r) => s + r['Bez statusu'], 0),
+      'Doplnené dílerom': summaryRows.reduce((s, r) => s + r['Doplnené dílerom'], 0),
+    });
+    const wsSummary = XLSX.utils.json_to_sheet(summaryRows);
+    wsSummary['!cols'] = [{ wch: 35 }, { wch: 10 }, { wch: 10 }, { wch: 14 }, { wch: 18 }, { wch: 22 }, { wch: 14 }, { wch: 16 }];
+    XLSX.utils.book_append_sheet(wb, wsSummary, 'Sumár po díleroch');
+  }
+
+  // Detail sheet
+  const rows = filtered.map((v, i) => {
+    const row = { '#': i + 1 };
+    if (isAdmin) { row['Díler'] = v.DealerName || ''; row['Kód'] = v.DealerCode || ''; }
+    row['VIN'] = v.VIN;
+    row['Vozidlo'] = v.Vozidlo || '';
+    row['Faktúra'] = v.InvoiceStatus === 'invoiced' ? 'Fakturované' : v.InvoiceStatus === 'not invoiced yet' ? 'Nefakturované' : '';
+    row['Stav registrácie'] = pendingChanges[v.VIN] ?? v.RegistrationStatus ?? '';
+    if (!isAdmin) { row['Dealer'] = v.DealerName || dealerName; }
+    row['Doplnené dílerom'] = v.AddedByDealer === 'áno' ? 'Áno' : 'Nie';
+    return row;
+  });
+
+  const wsDetail = XLSX.utils.json_to_sheet(rows);
+  if (isAdmin) {
+    wsDetail['!cols'] = [{ wch: 4 }, { wch: 35 }, { wch: 10 }, { wch: 20 }, { wch: 45 }, { wch: 15 }, { wch: 30 }, { wch: 16 }];
+  } else {
+    wsDetail['!cols'] = [{ wch: 4 }, { wch: 20 }, { wch: 45 }, { wch: 15 }, { wch: 30 }, { wch: 35 }, { wch: 16 }];
+  }
+  XLSX.utils.book_append_sheet(wb, wsDetail, 'Kompletný zoznam');
+
   const dCode = currentDealer || 'export';
   const today = new Date().toISOString().slice(0, 10);
   XLSX.writeFile(wb, `vyber-vozidiel_${dCode}_${today}.xlsx`);
-  showToast(`Exportovaných ${rows.length} vozidiel`, 'success');
+  showToast(`Exportovaných ${rows.length} vozidiel${isAdmin ? ' + sumár' : ''}`, 'success');
 }
 
 // =============================================
