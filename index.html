@@ -63,6 +63,9 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif
 .filter-bar input { flex:1; min-width:200px; }
 .filter-bar input:focus, .filter-bar select:focus { outline:none; border-color:var(--accent); }
 .filter-bar select { appearance:none; background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b7280' fill='none' stroke-width='2'/%3E%3C/svg%3E") no-repeat right 12px center; padding-right:32px; cursor:pointer; }
+.btn-export { padding:10px 16px; background:#059669; color:#fff; border:none; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:6px; }
+.btn-export:hover { background:#047857; }
+.btn-export svg { width:16px; height:16px; }
 
 /* TABLE */
 .vehicle-table { width:100%; border-collapse:separate; border-spacing:0; background:var(--card); border-radius:12px; overflow:hidden; box-shadow:0 1px 3px rgba(0,0,0,0.05); }
@@ -79,12 +82,16 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif
 .status-select.s-will { background:var(--yellow-bg); border-color:var(--yellow); color:var(--yellow); }
 .status-select.s-can { background:var(--blue-bg); border-color:var(--blue); color:var(--blue); }
 
-.invoice-badge { padding:3px 8px; border-radius:6px; font-size:11px; font-weight:500; }
-.invoice-badge.inv { background:var(--green-bg); color:var(--green); }
-.invoice-badge.notinv { background:var(--yellow-bg); color:var(--yellow); }
 .added-badge { padding:3px 8px; background:#dbeafe; color:#2563eb; border-radius:6px; font-size:10px; font-weight:600; }
 
-/* ADD VEHICLE FORM */
+/* SAVE BAR */
+.save-bar { position:fixed; bottom:0; left:0; right:0; background:var(--primary); color:#fff; padding:14px 24px; display:flex; align-items:center; justify-content:space-between; transform:translateY(100%); transition:transform 0.3s; z-index:200; }
+.save-bar.visible { transform:translateY(0); }
+.btn-save { background:var(--accent); color:#fff; border:none; padding:10px 24px; border-radius:8px; font-weight:600; cursor:pointer; }
+.btn-save:hover { background:var(--accent-light); }
+.btn-save:disabled { opacity:0.5; cursor:not-allowed; }
+
+/* ADD VEHICLE */
 .add-section { background:var(--card); border-radius:12px; padding:20px 24px; margin-bottom:20px; box-shadow:0 1px 3px rgba(0,0,0,0.05); }
 .add-section h3 { font-size:14px; font-weight:600; margin-bottom:14px; display:flex; align-items:center; gap:8px; }
 .add-form { display:flex; gap:10px; flex-wrap:wrap; align-items:flex-end; }
@@ -95,69 +102,50 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif
 .add-form .field.vin-field input { font-family:'SF Mono',Monaco,monospace; text-transform:uppercase; width:220px; }
 .add-form .field.desc-field input { width:280px; }
 .add-form .field.status-field select { width:220px; appearance:none; background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b7280' fill='none' stroke-width='2'/%3E%3C/svg%3E") no-repeat right 12px center; padding-right:32px; }
-.btn-add { padding:10px 20px; background:var(--accent); color:#fff; border:none; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; transition:background 0.2s; height:42px; align-self:flex-end; }
+.btn-add { padding:10px 20px; background:var(--accent); color:#fff; border:none; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; height:42px; align-self:flex-end; }
 .btn-add:hover { background:var(--accent-light); }
 .btn-add:disabled { opacity:0.4; cursor:not-allowed; }
 
-/* SAVE BAR */
-.save-bar { position:fixed; bottom:0; left:0; right:0; background:var(--primary); color:#fff; padding:12px 24px; display:flex; align-items:center; justify-content:space-between; transform:translateY(100%); transition:transform 0.3s; z-index:100; }
-.save-bar.visible { transform:translateY(0); }
-.save-bar .changes-text { font-size:13px; opacity:0.8; }
-.btn-save { padding:10px 28px; background:var(--accent); color:#fff; border:none; border-radius:8px; font-size:14px; font-weight:600; cursor:pointer; }
-.btn-save:hover { background:var(--accent-light); }
-.btn-save:disabled { opacity:0.5; }
-
-/* EXPORT BUTTON */
-.btn-export { padding:10px 18px; background:var(--green); color:#fff; border:none; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; transition:background 0.2s; white-space:nowrap; display:flex; align-items:center; gap:6px; }
-.btn-export:hover { background:#047857; }
-.btn-export svg { width:16px; height:16px; }
+/* ADMIN */
+.admin-bar { background:#fef3c7; border:1px solid #f59e0b; border-radius:10px; padding:14px 20px; margin-bottom:20px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; }
+.admin-bar .label { font-size:13px; font-weight:600; color:#92400e; }
+.admin-bar .label small { font-weight:400; color:#a16207; }
+.btn-admin { padding:10px 20px; background:#f59e0b; color:#fff; border:none; border-radius:8px; font-weight:600; cursor:pointer; font-size:13px; }
+.btn-admin:hover { background:#d97706; }
+.btn-admin:disabled { opacity:0.4; cursor:not-allowed; }
+.btn-admin.danger { background:#ef4444; }
+.btn-admin.danger:hover { background:#dc2626; }
 
 /* LOADING / TOAST / EMPTY */
 .loading { text-align:center; padding:60px; color:var(--text-muted); }
-.spinner { display:inline-block; width:32px; height:32px; border:3px solid var(--border); border-top-color:var(--accent); border-radius:50%; animation:spin 0.8s linear infinite; }
+.spinner { width:32px; height:32px; border:3px solid var(--border); border-top-color:var(--accent); border-radius:50%; animation:spin 0.8s linear infinite; margin:0 auto; }
 @keyframes spin { to { transform:rotate(360deg); } }
-.toast { position:fixed; top:20px; right:20px; padding:12px 20px; border-radius:10px; font-size:13px; font-weight:500; z-index:200; transform:translateX(120%); transition:transform 0.3s; }
-.toast.visible { transform:translateX(0); }
+.toast { position:fixed; bottom:80px; left:50%; transform:translateX(-50%) translateY(20px); padding:12px 24px; border-radius:10px; font-size:13px; font-weight:500; opacity:0; transition:all 0.3s; z-index:300; pointer-events:none; }
+.toast.visible { opacity:1; transform:translateX(-50%) translateY(0); }
 .toast.success { background:#059669; color:#fff; }
-.toast.error { background:#dc2626; color:#fff; }
-.empty-state { text-align:center; padding:60px 20px; color:var(--text-muted); }
+.toast.error { background:#ef4444; color:#fff; }
+.empty-state { text-align:center; padding:60px; color:var(--text-muted); }
 .empty-state .icon { font-size:48px; margin-bottom:12px; }
-
-/* RESPONSIVE */
-@media (max-width:768px) {
-  .header { padding:12px 16px; }
-  .header h1 { font-size:15px; }
-  .content { padding:16px; }
-  .stat-card { padding:10px 14px; min-width:100px; }
-  .stat-card .value { font-size:20px; }
-  .vehicle-table { display:block; overflow-x:auto; }
-  .filter-bar { flex-direction:column; }
-  .filter-bar input, .filter-bar select { width:100%; }
-  .add-form { flex-direction:column; }
-  .add-form .field input, .add-form .field select { width:100% !important; }
-  .btn-add { width:100%; }
-}
 </style>
 </head>
 <body>
 
 <!-- LOGIN -->
-<div id="loginScreen" class="login-screen">
+<div class="login-screen" id="loginScreen">
   <div class="login-card">
-    <div class="logo">O&J</div>
-    <div class="subtitle">Výber vozidiel — máj 2026</div>
+    <div class="logo">OMODA | JAECOO</div>
+    <div class="subtitle">Výber vozidiel — Jún 2026</div>
     <select id="dealerSelect">
-      <option value="">— Vyberte váš dílerský kód —</option>
+      <option value="">Vyberte dealera...</option>
     </select>
     <button class="btn-login" id="btnLogin" disabled onclick="login()">Prihlásiť sa</button>
-    <p style="margin-top:16px;font-size:11px;color:var(--text-muted)">Vyberte svoj OSK kód, označte stav registrácie a doplňte prípadné chýbajúce vozidlá.</p>
   </div>
 </div>
 
 <!-- APP -->
-<div id="app" class="app">
+<div class="app" id="app">
   <div class="header">
-    <h1>Výber vozidiel <span class="badge">MÁJ 2026</span></h1>
+    <h1>Výber vozidiel <span class="badge">JÚN 2026</span></h1>
     <div class="dealer-info">
       <span id="dealerLabel"></span>
       <button class="logout" onclick="logout()">Odhlásiť</button>
@@ -165,50 +153,59 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif
   </div>
 
   <div class="content">
+    <!-- ADMIN BAR -->
+    <div class="admin-bar" id="adminBar" style="display:none">
+      <div class="label">🔧 Admin mód <small>— nahrať / vymazať vozidlá</small></div>
+      <div style="display:flex;gap:8px">
+        <button class="btn-admin" onclick="uploadToFirebase()">Nahrať vozidlá do Firebase</button>
+        <button class="btn-admin danger" onclick="resetStatuses()">Reset statusov</button>
+      </div>
+    </div>
+
     <!-- STATS -->
     <div class="stats-bar" id="statsBar"></div>
 
     <!-- ADD VEHICLE -->
     <div class="add-section">
-      <h3>➕ Pridať vozidlo</h3>
+      <h3>➕ Pridať vozidlo (chýbajúce VIN)</h3>
       <div class="add-form">
         <div class="field vin-field">
-          <label>VIN (chassis number)</label>
-          <input type="text" id="addVin" placeholder="napr. LVVDB21B5SD056640" maxlength="20">
+          <label>VIN</label>
+          <input type="text" id="addVin" placeholder="LVVDD21B..." maxlength="17">
         </div>
         <div class="field desc-field">
-          <label>Popis vozidla (voliteľné)</label>
-          <input type="text" id="addDesc" placeholder="napr. OMODA 5 Premium - Phantom Gray">
+          <label>Vozidlo</label>
+          <input type="text" id="addDesc" placeholder="napr. JAECOO 7">
         </div>
         <div class="field status-field">
-          <label>Stav registrácie</label>
+          <label>Status</label>
           <select id="addStatus">
-            <option value="">— Vyberte —</option>
+            <option value="">— Bez statusu —</option>
             <option value="registrované">Registrované</option>
-            <option value="bude registrované v máji">Bude registrované v máji</option>
-            <option value="môže byť registrované v máji">Môže byť registrované v máji</option>
+            <option value="bude registrované">Bude registrované</option>
+            <option value="môže byť registrované">Môže byť registrované</option>
           </select>
         </div>
         <button class="btn-add" id="btnAdd" onclick="addVehicle()">Pridať</button>
       </div>
     </div>
 
-    <!-- FILTER -->
+    <!-- FILTERS -->
     <div class="filter-bar">
-      <input type="text" id="searchMy" placeholder="Hľadať podľa VIN, modelu, farby..." oninput="renderVehicles()">
-      <select id="filterInvoice" onchange="renderVehicles()">
-        <option value="">Všetky faktúry</option>
-        <option value="invoiced">Fakturované</option>
-        <option value="not invoiced yet">Nefakturované</option>
-      </select>
-      <select id="filterDealer" onchange="renderVehicles()" style="display:none">
-        <option value="">Všetci díleri</option>
+      <input type="text" id="searchMy" placeholder="Hľadať VIN alebo model..." oninput="renderVehicles()">
+      <select id="filterModel" onchange="renderVehicles()">
+        <option value="">Všetky modely</option>
+        <option value="OMODA 5">OMODA 5</option>
+        <option value="OMODA 7">OMODA 7</option>
+        <option value="OMODA 9">OMODA 9</option>
+        <option value="JAECOO 5">JAECOO 5</option>
+        <option value="JAECOO 7">JAECOO 7</option>
       </select>
       <select id="filterStatus" onchange="renderVehicles()">
         <option value="">Všetky statusy</option>
         <option value="registrované">Registrované</option>
-        <option value="bude registrované v máji">Bude registrované v máji</option>
-        <option value="môže byť registrované v máji">Môže byť registrované v máji</option>
+        <option value="bude registrované">Bude registrované</option>
+        <option value="môže byť registrované">Môže byť registrované</option>
         <option value="__none__">Bez statusu</option>
       </select>
       <button class="btn-export" onclick="exportExcel()">
@@ -232,13 +229,132 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif
 <div class="toast" id="toast"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 <script>
 // =============================================
-// CONFIG
+// FIREBASE CONFIG
 // =============================================
-const WORKER_URL = 'https://oj-vehicles-api.amarkusek.workers.dev';
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbxscm5-VbIPQZOYFcBJ3rfdSkYjSxFOfyymnEanpESQrntOA22e5OZg7ROkhZEm1WTC/exec';
-const API_URL = WORKER_URL; // Primary: Cloudflare Worker proxy (GAS_URL as fallback)
+firebase.initializeApp({
+  databaseURL: 'https://ga-vehicles-default-rtdb.europe-west1.firebasedatabase.app'
+});
+const db = firebase.database();
+const vehiclesRef = db.ref('vyber-jun26');
+
+// =============================================
+// VEHICLES DATA — 84 vozidiel (Push Jún 2026, AD=ÁNO)
+// =============================================
+const VEHICLES = [
+  {vin:"LVUGTBAD2TDE54652",model:"JAECOO 5",dealer:"OSK0010"},
+  {vin:"LVVDD21B6TC082665",model:"JAECOO 7",dealer:"OSK0010"},
+  {vin:"LVUGTB224SDH71361",model:"JAECOO 5",dealer:"OSK0020"},
+  {vin:"LVUGTBAD1TDE54416",model:"JAECOO 5",dealer:"OSK0020"},
+  {vin:"LVUGTBAD2TDE54473",model:"JAECOO 5",dealer:"OSK0020"},
+  {vin:"LNNBBDEE8SC179815",model:"JAECOO 7",dealer:"OSK0020"},
+  {vin:"LVVDD21B1TC058516",model:"JAECOO 7",dealer:"OSK0020"},
+  {vin:"LNNABDCX9TD058481",model:"OMODA 5",dealer:"OSK0020"},
+  {vin:"LVUGTBHD2TD132161",model:"OMODA 5",dealer:"OSK0020"},
+  {vin:"LVUGTBHD4TD132212",model:"OMODA 5",dealer:"OSK0020"},
+  {vin:"LVVDB21B1TD094416",model:"OMODA 5",dealer:"OSK0020"},
+  {vin:"LVVDB21B1TD132467",model:"OMODA 5",dealer:"OSK0020"},
+  {vin:"LVVDB21B2SDJ54136",model:"OMODA 5",dealer:"OSK0020"},
+  {vin:"LVVDB21B4SDJ54140",model:"OMODA 5",dealer:"OSK0020"},
+  {vin:"LVVDB21B7TD132473",model:"OMODA 5",dealer:"OSK0020"},
+  {vin:"LVVDB21BXSD237314",model:"OMODA 5",dealer:"OSK0020"},
+  {vin:"LNNBDDEH3TG021476",model:"OMODA 9",dealer:"OSK0020"},
+  {vin:"LNNBDDEH6TG018264",model:"OMODA 9",dealer:"OSK0020"},
+  {vin:"LNNBDDEH7TG018306",model:"OMODA 9",dealer:"OSK0020"},
+  {vin:"LNNBDDEH8SG123032",model:"OMODA 9",dealer:"OSK0020"},
+  {vin:"LNNBDDEH8TG021506",model:"OMODA 9",dealer:"OSK0020"},
+  {vin:"LNNBDDEHXTG007882",model:"OMODA 9",dealer:"OSK0020"},
+  {vin:"LVVDD21B3TC082669",model:"JAECOO 7",dealer:"OSK0030"},
+  {vin:"LVUGTBHD3TD132153",model:"OMODA 5",dealer:"OSK0030"},
+  {vin:"LVVDB21B0TD132475",model:"OMODA 5",dealer:"OSK0030"},
+  {vin:"LNNBDDEH1TG021508",model:"OMODA 9",dealer:"OSK0030"},
+  {vin:"LVUGTB224SDH93750",model:"JAECOO 5",dealer:"OSK0040"},
+  {vin:"LNNBBDEE4SC281788",model:"JAECOO 7",dealer:"OSK0040"},
+  {vin:"LVVDD21B2TC058511",model:"JAECOO 7",dealer:"OSK0040"},
+  {vin:"LVVDD21B4TC037272",model:"JAECOO 7",dealer:"OSK0040"},
+  {vin:"LVVDD21B5TC058261",model:"JAECOO 7",dealer:"OSK0040"},
+  {vin:"LVVDD21BXTC058305",model:"JAECOO 7",dealer:"OSK0040"},
+  {vin:"LVVDB21B6TD132481",model:"OMODA 5",dealer:"OSK0040"},
+  {vin:"LNNBDDEH1TG021489",model:"OMODA 9",dealer:"OSK0040"},
+  {vin:"LVUGTB221TDE98042",model:"JAECOO 5",dealer:"OSK0050"},
+  {vin:"LVUGTBCD5TDE67957",model:"OMODA 7",dealer:"OSK0050"},
+  {vin:"LVUGTBAD9TDE67057",model:"JAECOO 5",dealer:"OSK0060"},
+  {vin:"LVVDD21B1TC026018",model:"JAECOO 7",dealer:"OSK0060"},
+  {vin:"LVVDD21B5TC026006",model:"JAECOO 7",dealer:"OSK0060"},
+  {vin:"LVVDD21B5TC058308",model:"JAECOO 7",dealer:"OSK0060"},
+  {vin:"LNNBBDEE2SC281787",model:"JAECOO 7",dealer:"OSK0080"},
+  {vin:"LNNBBDEE5SC281797",model:"JAECOO 7",dealer:"OSK0080"},
+  {vin:"LVVDD21B3TC082817",model:"JAECOO 7",dealer:"OSK0080"},
+  {vin:"LVVDD21B4TC082678",model:"JAECOO 7",dealer:"OSK0080"},
+  {vin:"LVVDD21B6TC082682",model:"JAECOO 7",dealer:"OSK0080"},
+  {vin:"LVUGTBCD2TDE67916",model:"OMODA 7",dealer:"OSK0080"},
+  {vin:"LNNBDDEH0SG129245",model:"OMODA 9",dealer:"OSK0080"},
+  {vin:"LNNABDCX5TD058560",model:"OMODA 5",dealer:"OSK0090"},
+  {vin:"LVVDB21B9TD132491",model:"OMODA 5",dealer:"OSK0090"},
+  {vin:"LNNBDDEH1TG021492",model:"OMODA 9",dealer:"OSK0090"},
+  {vin:"LVUGTB221SDH93740",model:"JAECOO 5",dealer:"OSK0100"},
+  {vin:"LVUGTB223SDH93755",model:"JAECOO 5",dealer:"OSK0100"},
+  {vin:"LVUGTB229TDL06816",model:"JAECOO 5",dealer:"OSK0100"},
+  {vin:"LVUGTBAD1TDE54660",model:"JAECOO 5",dealer:"OSK0100"},
+  {vin:"LVUGTBAD5SD846603",model:"JAECOO 5",dealer:"OSK0100"},
+  {vin:"LVUGTBAD6TDE67064",model:"JAECOO 5",dealer:"OSK0100"},
+  {vin:"LNNBBDEE9SC281785",model:"JAECOO 7",dealer:"OSK0100"},
+  {vin:"LVUGTBHD0TC085444",model:"JAECOO 7",dealer:"OSK0100"},
+  {vin:"LVUGTBHD9TC085345",model:"JAECOO 7",dealer:"OSK0100"},
+  {vin:"LVVDD21B1TC082718",model:"JAECOO 7",dealer:"OSK0100"},
+  {vin:"LVVDD21BXTC082667",model:"JAECOO 7",dealer:"OSK0100"},
+  {vin:"LNNABDCX5TD057604",model:"OMODA 5",dealer:"OSK0100"},
+  {vin:"LVUGTBHD9TD132237",model:"OMODA 5",dealer:"OSK0100"},
+  {vin:"LVVDB21B3TD094370",model:"OMODA 5",dealer:"OSK0100"},
+  {vin:"LVVDB21B3TD132468",model:"OMODA 5",dealer:"OSK0100"},
+  {vin:"LVVDB21B3TD132471",model:"OMODA 5",dealer:"OSK0100"},
+  {vin:"LVVDB21B5TD093883",model:"OMODA 5",dealer:"OSK0100"},
+  {vin:"LVVDB21B7TD132229",model:"OMODA 5",dealer:"OSK0100"},
+  {vin:"LVVDB21B8TD132479",model:"OMODA 5",dealer:"OSK0100"},
+  {vin:"LNNBDDEH2TG021503",model:"OMODA 9",dealer:"OSK0100"},
+  {vin:"LVVDB21B5TD132472",model:"OMODA 5",dealer:"OSK0110"},
+  {vin:"LVVDB21B6TD132478",model:"OMODA 5",dealer:"OSK0120"},
+  {vin:"LVUGTB221TDE99420",model:"JAECOO 5",dealer:"OSK0130"},
+  {vin:"LVUGTB225TDE98044",model:"JAECOO 5",dealer:"OSK0130"},
+  {vin:"LVUGTBHD9TD132156",model:"OMODA 5",dealer:"OSK0130"},
+  {vin:"LVVDB21B5TD092409",model:"OMODA 5",dealer:"OSK0130"},
+  {vin:"LNNBDDEH7TG021495",model:"OMODA 9",dealer:"OSK0130"},
+  {vin:"LVUGTBAD2TDE67062",model:"JAECOO 5",dealer:"OSK0150"},
+  {vin:"LNNABDCX3TD058489",model:"OMODA 5",dealer:"OSK0150"},
+  {vin:"LVVDB21B5TD132486",model:"OMODA 5",dealer:"OSK0150"},
+  {vin:"LVVDB21BXTD132483",model:"OMODA 5",dealer:"OSK0150"},
+  {vin:"LNNBDDEH4TG021499",model:"OMODA 9",dealer:"OSK0150"},
+  {vin:"LVUGTB220TDL02878",model:"JAECOO 5",dealer:"OSK0160"},
+  {vin:"LVVDB21B0TD132492",model:"OMODA 5",dealer:"OSK0160"}
+];
+
+// =============================================
+// DEALERS
+// =============================================
+const DEALERS = {
+  "OSK0010": "BUILT, spol. s r.o. (OSK0010)",
+  "OSK0011": "BUILT, spol. s r.o. (OSK0011)",
+  "OSK0020": "Autoštýl (OSK0020)",
+  "OSK0021": "Autoštýl (OSK0021)",
+  "OSK0030": "Autoservis Béhr a Béhr s.r.o (OSK0030)",
+  "OSK0040": "AUTOVENDY SLOVAKIA, s.r.o. (OSK0040)",
+  "OSK0050": "AUTO VIBA, s.r.o. (OSK0050)",
+  "OSK0060": "J.M.MARTIN, spol. s.r.o. (OSK0060)",
+  "OSK0080": "LION CAR, S.R.O. (OSK0080)",
+  "OSK0090": "UNICAR, s.r.o. (OSK0090)",
+  "OSK0100": "M.A.N. SLOVENSKO s.r.o. (OSK0100)",
+  "OSK0110": "WINKLER, s.r.o. (OSK0110)",
+  "OSK0120": "FINAL-CD Bratislava, spol s.r.o. (OSK0120)",
+  "OSK0130": "Auto Becchi, s.r.o. (OSK0130)",
+  "OSK0140": "AUTO - RÁCZ s.r.o. (OSK0140)",
+  "OSK0150": "MOTORBOX s.r.o. (OSK0150)",
+  "OSK0151": "MOTORBOX s.r.o. (OSK0151)",
+  "OSK0160": "AUTO SWAM s.r.o. (OSK0160)",
+  "OSK0170": "ALBEX PLUS, s.r.o. (OSK0170)"
+};
 
 // =============================================
 // STATE
@@ -247,47 +363,14 @@ let currentDealer = null;
 let dealerName = '';
 let vehicles = [];
 let pendingChanges = {};
-
 let isAdmin = false;
-
-const DEALERS = {
-  "OSK0010": "BUILT, spol. s r.o. — Prešov",
-  "OSK0011": "BUILT, spol. s r.o. — Košice",
-  "OSK0020": "AUTOŠTÝL a.s. — Trenčianska Turná",
-  "OSK0021": "AUTOŠTÝL a.s. — Bratislava",
-  "OSK0030": "Autoservis Béhr a Béhr s.r.o. — Trnava",
-  "OSK0040": "AUTOVENDY SLOVAKIA, s.r.o. — Plavnica",
-  "OSK0050": "AUTO VIBA, s.r.o. — Lučenec",
-  "OSK0060": "J.M.MARTIN, spol. s r.o. — Martin",
-  "OSK0080": "LION CAR, S.R.O. — Banská Bystrica",
-  "OSK0090": "UNICAR, s.r.o. — Liptovský Mikuláš",
-  "OSK0100": "M.A.N. SLOVENSKO s.r.o. — Komárno",
-  "OSK0110": "WINKLER, s.r.o. — Michalovce",
-  "OSK0120": "FINAL-CD Bratislava, spol s.r.o. — Bratislava",
-  "OSK0130": "Auto Becchi, s.r.o. — Žilina",
-  "OSK0140": "AUTO - RÁCZ s.r.o. — Levice",
-  "OSK0150": "MOTORBOX s.r.o. — Továrníky",
-  "OSK0151": "MOTORBOX s.r.o. — Bojnice",
-  "OSK0160": "AUTO SWAM s.r.o. — Košice",
-  "OSK0170": "ALBEX PLUS, s.r.o. — Nitra"
-};
 
 // =============================================
 // INIT
 // =============================================
 (function init() {
+  isAdmin = location.search.includes('admin');
   const sel = document.getElementById('dealerSelect');
-  // Admin option
-  const adminOpt = document.createElement('option');
-  adminOpt.value = 'ADMIN';
-  adminOpt.textContent = '🔑 ADMIN — všetci díleri';
-  sel.appendChild(adminOpt);
-  // Separator
-  const sepOpt = document.createElement('option');
-  sepOpt.disabled = true;
-  sepOpt.textContent = '────────────────────';
-  sel.appendChild(sepOpt);
-  // Dealer options
   Object.entries(DEALERS).sort((a,b) => a[1].localeCompare(b[1])).forEach(([code, name]) => {
     const opt = document.createElement('option');
     opt.value = code;
@@ -297,7 +380,7 @@ const DEALERS = {
   sel.addEventListener('change', () => {
     document.getElementById('btnLogin').disabled = !sel.value;
   });
-  const saved = sessionStorage.getItem('dealer');
+  const saved = sessionStorage.getItem('dealer_jun26');
   if (saved) { sel.value = saved; login(); }
 })();
 
@@ -307,30 +390,19 @@ const DEALERS = {
 function login() {
   const code = document.getElementById('dealerSelect').value;
   if (!code) return;
-  isAdmin = (code === 'ADMIN');
-  currentDealer = isAdmin ? 'ADMIN' : code;
-  dealerName = isAdmin ? 'ADMIN' : (DEALERS[code] || code);
-  sessionStorage.setItem('dealer', code);
+  currentDealer = code;
+  dealerName = DEALERS[code] || code;
+  sessionStorage.setItem('dealer_jun26', code);
   document.getElementById('loginScreen').style.display = 'none';
   document.getElementById('app').style.display = 'block';
-  document.getElementById('dealerLabel').textContent = isAdmin ? '🔑 ADMIN — všetci díleri' : dealerName;
-  // Admin: show dealer filter, hide add-vehicle section
-  document.querySelector('.add-section').style.display = isAdmin ? 'none' : 'block';
-  document.getElementById('filterDealer').style.display = isAdmin ? '' : 'none';
-  if (isAdmin) {
-    const df = document.getElementById('filterDealer');
-    df.innerHTML = '<option value="">Všetci díleri</option>';
-    Object.entries(DEALERS).sort((a,b) => a[1].localeCompare(b[1])).forEach(([c, n]) => {
-      df.innerHTML += `<option value="${c}">${c} — ${n.split('(')[0].trim()}</option>`;
-    });
-  }
+  document.getElementById('dealerLabel').textContent = dealerName;
+  if (isAdmin) document.getElementById('adminBar').style.display = 'flex';
   loadData();
 }
 
 function logout() {
-  sessionStorage.removeItem('dealer');
+  sessionStorage.removeItem('dealer_jun26');
   currentDealer = null;
-  isAdmin = false;
   pendingChanges = {};
   document.getElementById('app').style.display = 'none';
   document.getElementById('loginScreen').style.display = 'flex';
@@ -338,151 +410,73 @@ function logout() {
 }
 
 // =============================================
-// DATA
+// DATA — FIREBASE
 // =============================================
 async function loadData() {
   showLoading('vehiclesContainer');
   try {
-    const res = isAdmin
-      ? await apiCall('getAllData')
-      : await apiCall('getVehicles', { code: currentDealer });
-    vehicles = res.vehicles || [];
+    const snapshot = await vehiclesRef.once('value');
+    const fbData = snapshot.val() || {};
+
+    // Build vehicles list for this dealer
+    vehicles = [];
+    // First: vehicles from VEHICLES array assigned to this dealer
+    VEHICLES.filter(v => v.dealer === currentDealer).forEach(v => {
+      const fbRecord = fbData[v.vin] || {};
+      vehicles.push({
+        VIN: v.vin,
+        Vozidlo: v.model,
+        RegistrationStatus: fbRecord.status || '',
+        AddedByDealer: false
+      });
+    });
+
+    // Then: vehicles added by dealer directly (stored in Firebase with dealerAdded flag)
+    Object.entries(fbData).forEach(([vin, data]) => {
+      if (data.dealerAdded && data.dealer === currentDealer) {
+        if (!vehicles.some(v => v.VIN === vin)) {
+          vehicles.push({
+            VIN: vin,
+            Vozidlo: data.vozidlo || '',
+            RegistrationStatus: data.status || '',
+            AddedByDealer: true
+          });
+        }
+      }
+    });
+
+    // Admin sees ALL vehicles
+    if (isAdmin) {
+      vehicles = [];
+      const allDealers = [...new Set(VEHICLES.map(v => v.dealer))];
+      VEHICLES.forEach(v => {
+        const fbRecord = fbData[v.vin] || {};
+        vehicles.push({
+          VIN: v.vin,
+          Vozidlo: v.model,
+          Dealer: v.dealer,
+          RegistrationStatus: fbRecord.status || '',
+          AddedByDealer: false
+        });
+      });
+      Object.entries(fbData).forEach(([vin, data]) => {
+        if (data.dealerAdded && !vehicles.some(v => v.VIN === vin)) {
+          vehicles.push({
+            VIN: vin,
+            Vozidlo: data.vozidlo || '',
+            Dealer: data.dealer || '?',
+            RegistrationStatus: data.status || '',
+            AddedByDealer: true
+          });
+        }
+      });
+    }
+
     renderVehicles();
   } catch (err) {
-    document.getElementById('vehiclesContainer').innerHTML =
-      '<div class="loading">' +
-      '<div style="font-size:40px;margin-bottom:12px">⚠️</div>' +
-      '<p style="color:var(--text-muted);margin-bottom:16px">Nepodarilo sa načítať vozidlá.<br><small>' + err.message + '</small></p>' +
-      '<button onclick="loadData()" style="padding:10px 24px;background:var(--accent);color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600">Skúsiť znova</button>' +
-      '</div>';
+    showToast('Chyba pri načítaní: ' + err.message, 'error');
+    document.getElementById('vehiclesContainer').innerHTML = '<div class="empty-state"><div class="icon">⚠️</div><div class="msg">Nepodarilo sa načítať dáta</div></div>';
   }
-}
-
-// ── API layer: Worker V4 (reads from Google Sheets CSV) → JSONP → GAS fetch ──
-
-const READ_ACTIONS = ['getVehicles', 'getAllData', 'getFreeVehicles', 'getDealers'];
-
-async function apiCall(action, params = {}, retries = 2) {
-  const errors = [];
-  const isRead = READ_ACTIONS.includes(action);
-
-  for (let i = 0; i < retries; i++) {
-    if (isRead) {
-      // READ: Worker V4 first (reads CSV from docs.google.com — works even if script.google.com is blocked)
-      try {
-        return await apiFetchCors(action, params, WORKER_URL);
-      } catch (e) {
-        errors.push('Worker: ' + e.message);
-      }
-    }
-
-    // JSONP — direct to GAS (works for most users)
-    try {
-      return await apiFetchJsonp(action, params);
-    } catch (e) {
-      errors.push('JSONP: ' + e.message);
-    }
-
-    if (!isRead) {
-      // WRITE: also try Worker proxy to GAS
-      try {
-        return await apiFetchCors(action, params, WORKER_URL);
-      } catch (e) {
-        errors.push('Worker: ' + e.message);
-      }
-    }
-
-    // Direct GAS fetch (last resort)
-    try {
-      return await apiFetchCors(action, params, GAS_URL);
-    } catch (e) {
-      errors.push('GAS: ' + e.message);
-    }
-
-    if (i < retries - 1) await new Promise(r => setTimeout(r, 2000));
-  }
-  throw new Error(errors.join(' | '));
-}
-
-// fetch with CORS
-function apiFetchCors(action, params = {}, baseUrl = API_URL) {
-  return new Promise((resolve, reject) => {
-    const url = new URL(baseUrl);
-    url.searchParams.set('action', action);
-    Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
-
-    const timeout = setTimeout(() => reject(new Error('Timeout')), 15000);
-
-    fetch(url.toString(), { redirect: 'follow' })
-      .then(res => {
-        clearTimeout(timeout);
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        return res.json();
-      })
-      .then(data => resolve(data))
-      .catch(err => {
-        clearTimeout(timeout);
-        reject(err);
-      });
-  });
-}
-
-// JSONP — primary method (direct to GAS, bypasses CORS)
-function apiFetchJsonp(action, params = {}) {
-  return new Promise((resolve, reject) => {
-    const cbName = '_jsonp_' + Date.now() + '_' + Math.random().toString(36).slice(2);
-    const timeout = setTimeout(() => {
-      cleanup();
-      reject(new Error('Timeout 20s'));
-    }, 20000);
-
-    function cleanup() {
-      clearTimeout(timeout);
-      delete window[cbName];
-      if (script.parentNode) script.parentNode.removeChild(script);
-    }
-
-    window[cbName] = function(data) {
-      cleanup();
-      resolve(data);
-    };
-
-    const url = new URL(GAS_URL);
-    url.searchParams.set('action', action);
-    url.searchParams.set('callback', cbName);
-    Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
-
-    const script = document.createElement('script');
-    script.src = url.toString();
-    script.onerror = function() {
-      cleanup();
-      reject(new Error('Nepodarilo sa spojiť so serverom'));
-    };
-    document.body.appendChild(script);
-  });
-}
-
-// POST-like operations via API layer
-function apiPost(data) {
-  const action = data.action;
-  const params = {};
-  if (action === 'addVehicle') {
-    params.vehicle = JSON.stringify({
-      vin: data.vin,
-      vozidlo: data.vozidlo,
-      status: data.status,
-      dealerCode: data.dealerCode,
-      dealerName: data.dealerName
-    });
-  } else if (action === 'batchUpdate') {
-    params.changes = JSON.stringify(data.updates);
-    params.dealer = data.dealerCode;
-  } else if (action === 'updateStatus') {
-    params.vin = data.vin;
-    params.status = data.status;
-    params.dealer = data.dealer;
-  }
-  return apiCall(action, params);
 }
 
 // =============================================
@@ -490,14 +484,12 @@ function apiPost(data) {
 // =============================================
 function renderVehicles() {
   const search = document.getElementById('searchMy').value.toLowerCase();
-  const invoiceFilter = document.getElementById('filterInvoice').value;
+  const modelFilter = document.getElementById('filterModel').value;
   const statusFilter = document.getElementById('filterStatus').value;
-  const dealerFilter = isAdmin ? document.getElementById('filterDealer').value : '';
 
   let filtered = vehicles.filter(v => {
-    if (dealerFilter && v.DealerCode !== dealerFilter) return false;
-    if (search && !`${v.VIN} ${v.Vozidlo}`.toLowerCase().includes(search)) return false;
-    if (invoiceFilter && v.InvoiceStatus !== invoiceFilter) return false;
+    if (search && !`${v.VIN} ${v.Vozidlo} ${v.Dealer || ''}`.toLowerCase().includes(search)) return false;
+    if (modelFilter && v.Vozidlo !== modelFilter) return false;
     if (statusFilter === '__none__') {
       const s = pendingChanges[v.VIN] ?? v.RegistrationStatus ?? '';
       if (s) return false;
@@ -515,38 +507,30 @@ function renderVehicles() {
     return;
   }
 
+  const showDealer = isAdmin;
   let html = `<table class="vehicle-table">
     <thead><tr>
-      <th>#</th>${isAdmin ? '<th>Díler</th>' : ''}<th>VIN</th><th>Vozidlo</th><th>Faktúra</th><th>Stav registrácie</th>
+      <th>#</th><th>VIN</th><th>Vozidlo</th>${showDealer ? '<th>Dealer</th>' : ''}<th>Stav registrácie</th>
     </tr></thead><tbody>`;
 
   filtered.forEach((v, i) => {
     const status = pendingChanges[v.VIN] ?? v.RegistrationStatus ?? '';
     const sClass = status === 'registrované' ? 's-reg' :
-                   status === 'bude registrované v máji' ? 's-will' :
-                   status === 'môže byť registrované v máji' ? 's-can' : '';
-    const isAdded = v.AddedByDealer === 'áno';
-    const invLabel = v.InvoiceStatus === 'invoiced' ? 'Fakturované' :
-                     v.InvoiceStatus === 'not invoiced yet' ? 'Nefakturované' : '';
-    const invClass = v.InvoiceStatus === 'invoiced' ? 'inv' : v.InvoiceStatus ? 'notinv' : '';
-    const statusLabel = status === 'registrované' ? 'Registrované' :
-                        status === 'bude registrované v máji' ? 'Bude registrované v máji' :
-                        status === 'môže byť registrované v máji' ? 'Môže byť registrované v máji' : '—';
+                   status === 'bude registrované' ? 's-will' :
+                   status === 'môže byť registrované' ? 's-can' : '';
 
-    html += `<tr class="${isAdded ? 'added-row' : ''}">
+    html += `<tr class="${v.AddedByDealer ? 'added-row' : ''}">
       <td>${i + 1}</td>
-      ${isAdmin ? `<td style="font-size:12px">${v.DealerCode}<br><span style="color:var(--text-muted);font-size:11px">${v.DealerName || ''}</span></td>` : ''}
-      <td class="vin-cell">${v.VIN}${isAdded ? ' <span class="added-badge">DOPLNENÉ</span>' : ''}</td>
+      <td class="vin-cell">${v.VIN}${v.AddedByDealer ? ' <span class="added-badge">DOPLNENÉ</span>' : ''}</td>
       <td class="model-cell">${v.Vozidlo || '—'}</td>
-      <td>${invLabel ? `<span class="invoice-badge ${invClass}">${invLabel}</span>` : '—'}</td>
-      <td>${isAdmin
-        ? `<span class="status-select ${sClass}" style="display:inline-block;cursor:default">${statusLabel}</span>`
-        : `<select class="status-select ${sClass}" onchange="setStatus('${v.VIN}', this.value, this)">
+      ${showDealer ? `<td>${v.Dealer || ''}</td>` : ''}
+      <td>
+        <select class="status-select ${sClass}" onchange="setStatus('${v.VIN}', this.value, this)">
           <option value="" ${!status ? 'selected' : ''}>— Vyberte —</option>
           <option value="registrované" ${status === 'registrované' ? 'selected' : ''}>Registrované</option>
-          <option value="bude registrované v máji" ${status === 'bude registrované v máji' ? 'selected' : ''}>Bude registrované v máji</option>
-          <option value="môže byť registrované v máji" ${status === 'môže byť registrované v máji' ? 'selected' : ''}>Môže byť registrované v máji</option>
-        </select>`}
+          <option value="bude registrované" ${status === 'bude registrované' ? 'selected' : ''}>Bude registrované</option>
+          <option value="môže byť registrované" ${status === 'môže byť registrované' ? 'selected' : ''}>Môže byť registrované</option>
+        </select>
       </td>
     </tr>`;
   });
@@ -558,15 +542,15 @@ function renderVehicles() {
 function renderStats() {
   const total = vehicles.length;
   const reg = vehicles.filter(v => (pendingChanges[v.VIN] ?? v.RegistrationStatus) === 'registrované').length;
-  const will = vehicles.filter(v => (pendingChanges[v.VIN] ?? v.RegistrationStatus) === 'bude registrované v máji').length;
-  const can = vehicles.filter(v => (pendingChanges[v.VIN] ?? v.RegistrationStatus) === 'môže byť registrované v máji').length;
+  const will = vehicles.filter(v => (pendingChanges[v.VIN] ?? v.RegistrationStatus) === 'bude registrované').length;
+  const can = vehicles.filter(v => (pendingChanges[v.VIN] ?? v.RegistrationStatus) === 'môže byť registrované').length;
   const none = total - reg - will - can;
 
   document.getElementById('statsBar').innerHTML = `
     <div class="stat-card"><div class="label">Celkom</div><div class="value">${total}</div></div>
     <div class="stat-card green"><div class="label">Registrované</div><div class="value">${reg}</div></div>
-    <div class="stat-card yellow"><div class="label">Bude v máji</div><div class="value">${will}</div></div>
-    <div class="stat-card blue"><div class="label">Môže v máji</div><div class="value">${can}</div></div>
+    <div class="stat-card yellow"><div class="label">Bude reg.</div><div class="value">${will}</div></div>
+    <div class="stat-card blue"><div class="label">Môže byť</div><div class="value">${can}</div></div>
     <div class="stat-card"><div class="label">Bez statusu</div><div class="value">${none}</div></div>
   `;
 }
@@ -578,11 +562,41 @@ function setStatus(vin, status, el) {
   pendingChanges[vin] = status;
   el.className = 'status-select ' + (
     status === 'registrované' ? 's-reg' :
-    status === 'bude registrované v máji' ? 's-will' :
-    status === 'môže byť registrované v máji' ? 's-can' : ''
+    status === 'bude registrované' ? 's-will' :
+    status === 'môže byť registrované' ? 's-can' : ''
   );
   updateSaveBar();
   renderStats();
+}
+
+async function saveAll() {
+  const btn = document.getElementById('btnSave');
+  btn.disabled = true;
+  btn.textContent = 'Ukladám...';
+
+  try {
+    const updates = {};
+    Object.entries(pendingChanges).forEach(([vin, status]) => {
+      updates[vin + '/status'] = status;
+    });
+    await vehiclesRef.update(updates);
+
+    // Apply locally
+    Object.entries(pendingChanges).forEach(([vin, status]) => {
+      const v = vehicles.find(v => v.VIN === vin);
+      if (v) v.RegistrationStatus = status;
+    });
+    const count = Object.keys(pendingChanges).length;
+    pendingChanges = {};
+    showToast(`${count} zmien uložených!`, 'success');
+  } catch (err) {
+    showToast('Chyba: ' + err.message, 'error');
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'Uložiť zmeny';
+  updateSaveBar();
+  renderVehicles();
 }
 
 async function addVehicle() {
@@ -594,46 +608,30 @@ async function addVehicle() {
   const vin = vinInput.value.trim().toUpperCase();
   if (!vin) { showToast('Zadajte VIN', 'error'); return; }
   if (vin.length < 10) { showToast('VIN je príliš krátke', 'error'); return; }
-
-  // Check local duplicates
-  if (vehicles.some(v => v.VIN === vin)) {
-    showToast('Toto VIN už máte v zozname', 'error');
-    return;
-  }
+  if (vehicles.some(v => v.VIN === vin)) { showToast('Toto VIN už máte v zozname', 'error'); return; }
 
   btn.disabled = true;
   btn.textContent = 'Pridávam...';
 
   try {
-    const res = await apiPost({
-      action: 'addVehicle',
-      vin,
+    await vehiclesRef.child(vin).set({
+      status: statusSel.value || '',
       vozidlo: descInput.value.trim(),
-      status: statusSel.value,
-      dealerCode: currentDealer,
-      dealerName: dealerName.replace(/ \(OSK\d+\)/, '')
+      dealer: currentDealer,
+      dealerAdded: true
     });
 
-    if (res.success) {
-      // Add to local list
-      vehicles.push({
-        VIN: vin,
-        Vozidlo: descInput.value.trim(),
-        DealerCode: currentDealer,
-        DealerName: dealerName,
-        InvoiceStatus: '',
-        DeliveryStatus: '',
-        RegistrationStatus: statusSel.value,
-        AddedByDealer: 'áno'
-      });
-      vinInput.value = '';
-      descInput.value = '';
-      statusSel.value = '';
-      renderVehicles();
-      showToast('Vozidlo pridané!', 'success');
-    } else {
-      showToast(res.error || 'Chyba pri pridávaní', 'error');
-    }
+    vehicles.push({
+      VIN: vin,
+      Vozidlo: descInput.value.trim(),
+      RegistrationStatus: statusSel.value,
+      AddedByDealer: true
+    });
+    vinInput.value = '';
+    descInput.value = '';
+    statusSel.value = '';
+    renderVehicles();
+    showToast('Vozidlo pridané!', 'success');
   } catch (err) {
     showToast('Chyba: ' + err.message, 'error');
   }
@@ -642,35 +640,50 @@ async function addVehicle() {
   btn.textContent = 'Pridať';
 }
 
-async function saveAll() {
-  const btn = document.getElementById('btnSave');
+// =============================================
+// ADMIN
+// =============================================
+async function uploadToFirebase() {
+  if (!confirm(`Nahrať ${VEHICLES.length} vozidiel do Firebase?\n\nExistujúce statusy sa zachovajú.`)) return;
+  const btn = event.target;
   btn.disabled = true;
-  btn.textContent = 'Ukladám...';
-
-  const updates = Object.entries(pendingChanges).map(([vin, status]) => ({ vin, status }));
+  btn.textContent = 'Nahrávam...';
 
   try {
-    const res = await apiPost({ action: 'batchUpdate', updates, dealerCode: currentDealer });
-    if (res.results) {
-      const ok = res.results.filter(r => r.success).length;
-      const fail = res.results.filter(r => r.error).length;
-      res.results.forEach(r => {
-        if (r.success) {
-          const v = vehicles.find(v => v.VIN === r.vin);
-          if (v) v.RegistrationStatus = pendingChanges[r.vin];
-          delete pendingChanges[r.vin];
-        }
-      });
-      showToast(fail === 0 ? `${ok} zmien uložených!` : `${ok} uložených, ${fail} chýb`, fail ? 'error' : 'success');
+    const snapshot = await vehiclesRef.once('value');
+    const existing = snapshot.val() || {};
+
+    const updates = {};
+    VEHICLES.forEach(v => {
+      if (!existing[v.vin]) {
+        updates[v.vin] = { status: '', dealer: v.dealer, vozidlo: v.model };
+      }
+    });
+
+    if (Object.keys(updates).length > 0) {
+      await vehiclesRef.update(updates);
+      showToast(`${Object.keys(updates).length} nových vozidiel nahratých!`, 'success');
+    } else {
+      showToast('Všetky vozidlá už sú v databáze', 'success');
     }
+    loadData();
   } catch (err) {
     showToast('Chyba: ' + err.message, 'error');
   }
 
   btn.disabled = false;
-  btn.textContent = 'Uložiť zmeny';
-  updateSaveBar();
-  renderVehicles();
+  btn.textContent = 'Nahrať vozidlá do Firebase';
+}
+
+async function resetStatuses() {
+  if (!confirm('Naozaj chcete vymazať VŠETKY statusy? Toto sa nedá vrátiť!')) return;
+  try {
+    await vehiclesRef.remove();
+    showToast('Všetky dáta vymazané', 'success');
+    loadData();
+  } catch (err) {
+    showToast('Chyba: ' + err.message, 'error');
+  }
 }
 
 // =============================================
@@ -678,12 +691,12 @@ async function saveAll() {
 // =============================================
 function exportExcel() {
   const search = document.getElementById('searchMy').value.toLowerCase();
-  const invoiceFilter = document.getElementById('filterInvoice').value;
+  const modelFilter = document.getElementById('filterModel').value;
   const statusFilter = document.getElementById('filterStatus').value;
 
   let filtered = vehicles.filter(v => {
     if (search && !`${v.VIN} ${v.Vozidlo}`.toLowerCase().includes(search)) return false;
-    if (invoiceFilter && v.InvoiceStatus !== invoiceFilter) return false;
+    if (modelFilter && v.Vozidlo !== modelFilter) return false;
     if (statusFilter === '__none__') {
       const s = pendingChanges[v.VIN] ?? v.RegistrationStatus ?? '';
       if (s) return false;
@@ -693,71 +706,24 @@ function exportExcel() {
     return true;
   });
 
-  if (filtered.length === 0) {
-    showToast('Žiadne vozidlá na export', 'error');
-    return;
-  }
+  if (filtered.length === 0) { showToast('Žiadne vozidlá na export', 'error'); return; }
 
+  const rows = filtered.map((v, i) => ({
+    '#': i + 1,
+    'VIN': v.VIN,
+    'Vozidlo': v.Vozidlo || '',
+    'Stav registrácie': pendingChanges[v.VIN] ?? v.RegistrationStatus ?? '',
+    'Dealer': v.Dealer || dealerName,
+    'Doplnené dílerom': v.AddedByDealer ? 'Áno' : 'Nie'
+  }));
+
+  const ws = XLSX.utils.json_to_sheet(rows);
+  ws['!cols'] = [{wch:4},{wch:20},{wch:16},{wch:25},{wch:35},{wch:16}];
   const wb = XLSX.utils.book_new();
-
-  // Admin: add summary sheet first
-  if (isAdmin) {
-    const dealerCodes = [...new Set(vehicles.map(v => v.DealerCode))].sort();
-    const summaryRows = dealerCodes.map(code => {
-      const dv = vehicles.filter(v => v.DealerCode === code);
-      const dName = dv[0]?.DealerName || code;
-      return {
-        'Díler': dName,
-        'Kód': code,
-        'Celkom': dv.length,
-        'Registrované': dv.filter(v => (pendingChanges[v.VIN] ?? v.RegistrationStatus) === 'registrované').length,
-        'Bude registrované': dv.filter(v => (pendingChanges[v.VIN] ?? v.RegistrationStatus) === 'bude registrované v máji').length,
-        'Môže byť registrované': dv.filter(v => (pendingChanges[v.VIN] ?? v.RegistrationStatus) === 'môže byť registrované v máji').length,
-        'Bez statusu': dv.filter(v => !(pendingChanges[v.VIN] ?? v.RegistrationStatus)).length,
-        'Doplnené dílerom': dv.filter(v => v.AddedByDealer === 'áno').length,
-      };
-    });
-    // Totals
-    summaryRows.push({
-      'Díler': 'CELKOM',
-      'Kód': '',
-      'Celkom': summaryRows.reduce((s, r) => s + r['Celkom'], 0),
-      'Registrované': summaryRows.reduce((s, r) => s + r['Registrované'], 0),
-      'Bude registrované': summaryRows.reduce((s, r) => s + r['Bude registrované'], 0),
-      'Môže byť registrované': summaryRows.reduce((s, r) => s + r['Môže byť registrované'], 0),
-      'Bez statusu': summaryRows.reduce((s, r) => s + r['Bez statusu'], 0),
-      'Doplnené dílerom': summaryRows.reduce((s, r) => s + r['Doplnené dílerom'], 0),
-    });
-    const wsSummary = XLSX.utils.json_to_sheet(summaryRows);
-    wsSummary['!cols'] = [{ wch: 35 }, { wch: 10 }, { wch: 10 }, { wch: 14 }, { wch: 18 }, { wch: 22 }, { wch: 14 }, { wch: 16 }];
-    XLSX.utils.book_append_sheet(wb, wsSummary, 'Sumár po díleroch');
-  }
-
-  // Detail sheet
-  const rows = filtered.map((v, i) => {
-    const row = { '#': i + 1 };
-    if (isAdmin) { row['Díler'] = v.DealerName || ''; row['Kód'] = v.DealerCode || ''; }
-    row['VIN'] = v.VIN;
-    row['Vozidlo'] = v.Vozidlo || '';
-    row['Faktúra'] = v.InvoiceStatus === 'invoiced' ? 'Fakturované' : v.InvoiceStatus === 'not invoiced yet' ? 'Nefakturované' : '';
-    row['Stav registrácie'] = pendingChanges[v.VIN] ?? v.RegistrationStatus ?? '';
-    if (!isAdmin) { row['Dealer'] = v.DealerName || dealerName; }
-    row['Doplnené dílerom'] = v.AddedByDealer === 'áno' ? 'Áno' : 'Nie';
-    return row;
-  });
-
-  const wsDetail = XLSX.utils.json_to_sheet(rows);
-  if (isAdmin) {
-    wsDetail['!cols'] = [{ wch: 4 }, { wch: 35 }, { wch: 10 }, { wch: 20 }, { wch: 45 }, { wch: 15 }, { wch: 30 }, { wch: 16 }];
-  } else {
-    wsDetail['!cols'] = [{ wch: 4 }, { wch: 20 }, { wch: 45 }, { wch: 15 }, { wch: 30 }, { wch: 35 }, { wch: 16 }];
-  }
-  XLSX.utils.book_append_sheet(wb, wsDetail, 'Kompletný zoznam');
-
-  const dCode = currentDealer || 'export';
+  XLSX.utils.book_append_sheet(wb, ws, 'Vozidlá');
   const today = new Date().toISOString().slice(0, 10);
-  XLSX.writeFile(wb, `vyber-vozidiel_${dCode}_${today}.xlsx`);
-  showToast(`Exportovaných ${rows.length} vozidiel${isAdmin ? ' + sumár' : ''}`, 'success');
+  XLSX.writeFile(wb, `vyber-vozidiel_${currentDealer}_${today}.xlsx`);
+  showToast(`Exportovaných ${rows.length} vozidiel`, 'success');
 }
 
 // =============================================
