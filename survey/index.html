@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>O&J Vehicle Survey</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--navy:#0a1628;--navy2:#132038;--accent:#c8102e;--accent2:#e8354f;--gold:#d4a843;--text:#e2e8f0;--muted:#94a3b8;--input-bg:#1e293b;--card:#162032;--border:#334155;--success:#22c55e;--warn:#f59e0b}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--navy);color:var(--text);min-height:100vh;line-height:1.5}
+.container{max-width:720px;margin:0 auto;padding:16px}
+
+/* Header */
+.header{text-align:center;padding:24px 0 16px;border-bottom:2px solid var(--accent)}
+.header h1{font-size:1.4em;color:#fff;margin-bottom:4px}
+.header p{color:var(--muted);font-size:.85em}
+.brand-tag{display:inline-block;background:var(--accent);color:#fff;padding:2px 12px;border-radius:12px;font-size:.75em;font-weight:600;margin-top:8px}
+.header-logos{margin-bottom:12px}
+.header-logo{max-width:280px;height:auto;filter:brightness(0) invert(1);opacity:.9}
+
+/* Progress */
+.progress-wrap{margin:20px 0;position:sticky;top:0;z-index:100;background:var(--navy);padding:12px 0 8px}
+.progress-bar{height:6px;background:var(--input-bg);border-radius:3px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--gold));transition:width .4s ease;border-radius:3px}
+.progress-text{text-align:center;font-size:.75em;color:var(--muted);margin-top:4px}
+.step-dots{display:flex;justify-content:center;gap:6px;margin-top:8px}
+.step-dot{width:8px;height:8px;border-radius:50%;background:var(--border);transition:all .3s}
+.step-dot.active{background:var(--accent);transform:scale(1.3)}
+.step-dot.done{background:var(--success)}
+
+/* Steps */
+.step{display:none;animation:fadeIn .3s ease}
+.step.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+/* Cards */
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px}
+.card h2{font-size:1.1em;color:#fff;margin-bottom:4px}
+.card h3{font-size:.95em;color:var(--gold);margin:16px 0 8px;padding-bottom:4px;border-bottom:1px solid var(--border)}
+.card p.desc{color:var(--muted);font-size:.8em;margin-bottom:12px}
+
+/* Form elements */
+label.field{display:block;margin-bottom:14px}
+label.field .label-text{display:block;font-size:.85em;color:var(--muted);margin-bottom:4px}
+input[type="text"],input[type="number"],input[type="email"],textarea,select{
+  width:100%;padding:10px 12px;background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:.9em;outline:none;transition:border-color .2s}
+input:focus,textarea:focus,select:focus{border-color:var(--accent)}
+textarea{resize:vertical;min-height:60px}
+select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2394a3b8' stroke-width='2' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
+
+/* Model/Type selector */
+.selector-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin:12px 0}
+.sel-card{padding:14px 12px;background:var(--input-bg);border:2px solid var(--border);border-radius:10px;text-align:center;cursor:pointer;transition:all .2s;user-select:none}
+.sel-card:hover{border-color:var(--muted)}
+.sel-card.selected{border-color:var(--accent);background:rgba(200,16,46,.1)}
+.sel-card .sel-title{font-weight:700;font-size:.95em;color:#fff}
+.sel-card .sel-sub{font-size:.75em;color:var(--muted);margin-top:2px}
+
+/* Star ratings */
+.rating-table{width:100%;border-collapse:separate;border-spacing:0}
+.rating-table th{text-align:center;font-size:.7em;color:var(--muted);padding:4px 2px;font-weight:400}
+.rating-table th:first-child{text-align:left;font-size:.75em}
+.rating-table td{padding:6px 2px;border-bottom:1px solid rgba(51,65,81,.3)}
+.rating-table td:first-child{font-size:.85em;padding-right:8px;min-width:120px}
+.rating-table .section-row td{padding:12px 0 4px;font-weight:700;color:var(--gold);font-size:.85em;border-bottom:1px solid var(--gold)}
+.star-group{display:none}
+.star-cell{text-align:center;vertical-align:middle}
+.star-btn{width:32px;height:32px;border:none;background:none;cursor:pointer;font-size:1.1em;color:var(--border);transition:all .15s;border-radius:4px;display:inline-flex;align-items:center;justify-content:center;margin:0 auto}
+.star-btn:hover{color:var(--gold);transform:scale(1.15)}
+.star-btn.lit{color:var(--gold)}
+@media(max-width:500px){
+  .star-btn{width:28px;height:28px;font-size:1em}
+  .rating-table td:first-child{font-size:.8em;min-width:90px}
+}
+
+/* Semantic differential */
+.diff-row{display:flex;align-items:center;gap:6px;margin-bottom:10px;padding:8px;background:var(--input-bg);border-radius:8px}
+.diff-label{font-size:.8em;min-width:80px;text-align:center}
+.diff-label.left{text-align:right;color:var(--muted)}
+.diff-label.right{text-align:left;color:var(--muted)}
+.diff-dots{display:flex;gap:4px;flex:1;justify-content:center}
+.diff-dot{width:30px;height:30px;border-radius:50%;border:2px solid var(--border);cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;font-size:.7em;color:transparent}
+.diff-dot:hover{border-color:var(--muted)}
+.diff-dot.selected{border-color:var(--gold);background:var(--gold);color:var(--navy)}
+@media(max-width:500px){
+  .diff-label{font-size:.7em;min-width:55px}
+  .diff-dot{width:26px;height:26px}
+}
+
+/* Checkbox grid for features */
+.feat-grid{display:grid;grid-template-columns:1fr;gap:6px}
+.feat-cat{font-size:.8em;color:var(--gold);font-weight:600;margin-top:10px;margin-bottom:4px}
+.feat-item{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--input-bg);border-radius:6px;cursor:pointer;border:1px solid transparent;transition:all .15s;font-size:.85em}
+.feat-item:hover{border-color:var(--muted)}
+.feat-item.checked{border-color:var(--accent);background:rgba(200,16,46,.08)}
+.feat-item input{display:none}
+.feat-check{width:18px;height:18px;border:2px solid var(--border);border-radius:4px;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0}
+.feat-item.checked .feat-check{background:var(--accent);border-color:var(--accent)}
+.feat-item.checked .feat-check::after{content:'✓';color:#fff;font-size:.7em;font-weight:700}
+.feat-counter{text-align:center;font-size:.85em;margin:8px 0}
+.feat-counter .count{color:var(--accent);font-weight:700;font-size:1.1em}
+
+/* Competitor section */
+.comp-row{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;padding:8px;margin-bottom:6px;background:var(--input-bg);border-radius:8px;font-size:.85em}
+.comp-name{font-weight:600}
+.price-radio{display:flex;gap:4px}
+.price-radio label{padding:4px 10px;background:var(--navy);border:1px solid var(--border);border-radius:6px;cursor:pointer;font-size:.75em;transition:all .15s}
+.price-radio label:hover{border-color:var(--muted)}
+.price-radio input{display:none}
+.price-radio input:checked+span{background:var(--accent);border-color:var(--accent)}
+.price-radio label.sel{background:rgba(200,16,46,.15);border-color:var(--accent)}
+
+/* Buttons */
+.btn-row{display:flex;gap:12px;margin-top:20px;justify-content:space-between}
+.btn{padding:12px 28px;border:none;border-radius:10px;font-size:.9em;font-weight:600;cursor:pointer;transition:all .2s}
+.btn-next{background:var(--accent);color:#fff;margin-left:auto}
+.btn-next:hover{background:var(--accent2);transform:translateY(-1px)}
+.btn-back{background:var(--input-bg);color:var(--muted);border:1px solid var(--border)}
+.btn-back:hover{border-color:var(--muted);color:var(--text)}
+.btn-submit{background:var(--success);color:#fff;width:100%;padding:14px;font-size:1em}
+.btn-submit:hover{filter:brightness(1.1)}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+
+/* Thank you */
+.thank-you{text-align:center;padding:60px 20px}
+.thank-you .icon{font-size:3em;margin-bottom:16px}
+.thank-you h2{font-size:1.4em;margin-bottom:8px}
+.thank-you p{color:var(--muted)}
+
+/* Dealer portrait */
+.portrait-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.portrait-card{background:var(--input-bg);border-radius:8px;padding:14px;text-align:center}
+.portrait-card .p-label{font-size:.8em;color:var(--muted);margin-bottom:6px}
+
+/* Age checkboxes */
+.age-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:6px}
+.age-item{padding:8px;background:var(--input-bg);border:1px solid var(--border);border-radius:6px;text-align:center;cursor:pointer;font-size:.85em;transition:all .15s}
+.age-item.checked{border-color:var(--accent);background:rgba(200,16,46,.08)}
+
+/* Required star */
+.req::after{content:' *';color:var(--accent)}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <div class="header-logos">
+      <img src="data:image/png;base64,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MzMzM6up/wcAAP//7deBAAAAAIAgf+tBLouEEAAAYEoIAQAApoQQAABgSggBAACmhBAAAGBKCAEAAKaEEAAAYEoIAQAApoQQAABgSggBAACmhBAAAGBKCAEAAKaEEAAAYEoIAQAApoQQAABgSggBAACmhBAAAGBKCAEAAKaEEAAAYEoIAQAApoQQAABgSggBAACmhBAAAGBKCAEAAKaEEAAAYEoIAQAApoQQAABgSggBAACmhBAAAGBKCAEAAKaEEAAAYEoIAQAApoQQAABgSggBAACmhBAAAGBKCAEAAKaEEAAAYEoIAQAApoQQAABgSggBAACmhBAAAGBKCAEAAKaEEAAAYEoIAQAApoQQAABgSggBAACmhBAAAGBKCAEAAKaEEAAAYEoIAQAApoQQAABgSggBAACmhBAAAGBKCAEAAKaEEAAAYEoIAQAApoQQAABgSggBAACmhBAAAGBKCAEAAKaEEAAAYEoIAQAApoQQAABgSggBAACmhBAAAGBKCAEAAKaEEAAAYEoIAQAApoQQAABgSggBAACmhBAAAGBKCAEAAKaEEAAAYEoIAQAApoQQAABgKs0IkP++7UUaAAAAAElFTkSuQmCC" alt="OMODA & JAECOO" class="header-logo">
+    </div>
+    <h1>Hodnotenie vozidla pred uvedením na trh</h1>
+    <p>Statické a dynamické hodnotenie — OMODA & JAECOO</p>
+    <span class="brand-tag">GRAND AUTOMOTIVE</span>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="progress-text" id="progressText"></div>
+    <div class="step-dots" id="stepDots"></div>
+  </div>
+
+  <form id="surveyForm" autocomplete="off">
+
+  <!-- STEP 1: Model + Respondent Type -->
+  <div class="step active" data-step="1">
+    <div class="card">
+      <h2 class="req">Výber modelu</h2>
+      <p class="desc">Ktorý model hodnotíte?</p>
+      <div class="selector-grid" id="modelSelect">
+        <div class="sel-card" data-value="Jaecoo 5 HEV" onclick="selectCard(this,'model')">
+          <div class="sel-title">Jaecoo 5</div><div class="sel-sub">HEV</div>
+        </div>
+        <div class="sel-card" data-value="Jaecoo 7 HEV" onclick="selectCard(this,'model')">
+          <div class="sel-title">Jaecoo 7</div><div class="sel-sub">HEV</div>
+        </div>
+        <div class="sel-card" data-value="Omoda 7 PHEV" onclick="selectCard(this,'model')">
+          <div class="sel-title">Omoda 7</div><div class="sel-sub">PHEV</div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <h2 class="req">Typ respondenta</h2>
+      <div class="selector-grid" id="typeSelect">
+        <div class="sel-card" data-value="Díler" onclick="selectCard(this,'respondent')">
+          <div class="sel-title">Díler</div><div class="sel-sub">Zástupca predajcu</div>
+        </div>
+        <div class="sel-card" data-value="Médiá" onclick="selectCard(this,'respondent')">
+          <div class="sel-title">Médiá</div><div class="sel-sub">Novinár / influencer</div>
+        </div>
+      </div>
+    </div>
+    <div class="btn-row"><button type="button" class="btn btn-next" onclick="nextStep()">Pokračovať →</button></div>
+  </div>
+
+  <!-- STEP 2: Personal Info -->
+  <div class="step" data-step="2">
+    <div class="card">
+      <h2>Osobné údaje</h2>
+      <p class="desc">Základné informácie o respondentovi</p>
+      <label class="field"><span class="label-text req">Meno a priezvisko</span><input type="text" name="name" required></label>
+      <label class="field"><span class="label-text req">Spoločnosť / Médium</span><input type="text" name="company" required></label>
+      <label class="field"><span class="label-text">Pozícia</span><input type="text" name="position"></label>
+      <label class="field"><span class="label-text req">Mesto / Región</span><input type="text" name="city" required></label>
+      <label class="field">
+        <span class="label-text req">Pohlavie</span>
+        <select name="gender" required><option value="">— vyberte —</option><option>Muž</option><option>Žena</option></select>
+      </label>
+      <label class="field">
+        <span class="label-text req">Vek</span>
+        <select name="age" required><option value="">— vyberte —</option><option>≤20</option><option>21–30</option><option>31–40</option><option>41–50</option><option>≥51</option></select>
+      </label>
+      <label class="field"><span class="label-text">Aktuálne vlastnené auto (značka + model)</span><input type="text" name="current_car" placeholder="napr. Škoda Octavia"></label>
+    </div>
+    <div class="btn-row">
+      <button type="button" class="btn btn-back" onclick="prevStep()">← Späť</button>
+      <button type="button" class="btn btn-next" onclick="nextStep()">Pokračovať →</button>
+    </div>
+  </div>
+
+  <!-- STEP 3: Appearance -->
+  <div class="step" data-step="3">
+    <div class="card">
+      <h2>Exteriér — Vzhľad vozidla</h2>
+      <p class="desc">Ohodnoťte jednotlivé prvky na škále 1–5 (1 = veľmi nepáči, 5 = veľmi páči)</p>
+      <table class="rating-table">
+        <thead><tr><th></th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th></tr></thead>
+        <tbody>
+          <tr><td>Celkový dojem z exteriéru</td><td colspan="5"><div class="star-group" data-name="ext_overall_impression"></div></td></tr>
+          <tr class="section-row"><td colspan="6">Predná časť</td></tr>
+          <tr><td>Čelné sklo</td><td colspan="5"><div class="star-group" data-name="ext_front_windshield"></div></td></tr>
+          <tr><td>Kapota motora</td><td colspan="5"><div class="star-group" data-name="ext_front_hood"></div></td></tr>
+          <tr><td>Svetlomety</td><td colspan="5"><div class="star-group" data-name="ext_front_headlight"></div></td></tr>
+          <tr><td>Maska chladiča</td><td colspan="5"><div class="star-group" data-name="ext_front_grille"></div></td></tr>
+          <tr><td>Predný nárazník</td><td colspan="5"><div class="star-group" data-name="ext_front_bumper"></div></td></tr>
+          <tr><td>Predná časť celkovo</td><td colspan="5"><div class="star-group" data-name="ext_front_general"></div></td></tr>
+          <tr class="section-row"><td colspan="6">Bočná časť</td></tr>
+          <tr><td>Bočné okná</td><td colspan="5"><div class="star-group" data-name="ext_side_window"></div></td></tr>
+          <tr><td>Dizajn dverí</td><td colspan="5"><div class="star-group" data-name="ext_side_door"></div></td></tr>
+          <tr><td>Dizajn kolies</td><td colspan="5"><div class="star-group" data-name="ext_side_wheel"></div></td></tr>
+          <tr><td>Veľkosť pneumatík</td><td colspan="5"><div class="star-group" data-name="ext_side_tire"></div></td></tr>
+          <tr><td>Spätné zrkadlá</td><td colspan="5"><div class="star-group" data-name="ext_side_mirror"></div></td></tr>
+          <tr><td>Bočná časť celkovo</td><td colspan="5"><div class="star-group" data-name="ext_side_general"></div></td></tr>
+          <tr class="section-row"><td colspan="6">Zadná časť</td></tr>
+          <tr><td>Zadné okno</td><td colspan="5"><div class="star-group" data-name="ext_rear_window"></div></td></tr>
+          <tr><td>Kufor / piate dvere</td><td colspan="5"><div class="star-group" data-name="ext_rear_trunk"></div></td></tr>
+          <tr><td>Zadné svetlá</td><td colspan="5"><div class="star-group" data-name="ext_rear_taillight"></div></td></tr>
+          <tr><td>Zadný nárazník</td><td colspan="5"><div class="star-group" data-name="ext_rear_bumper"></div></td></tr>
+          <tr><td>Výfukový systém</td><td colspan="5"><div class="star-group" data-name="ext_rear_exhaust"></div></td></tr>
+          <tr><td>Zadná časť celkovo</td><td colspan="5"><div class="star-group" data-name="ext_rear_general"></div></td></tr>
+          <tr class="section-row"><td colspan="6">Celkovo</td></tr>
+          <tr><td><strong>Exteriér celkovo</strong></td><td colspan="5"><div class="star-group" data-name="ext_general"></div></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="btn-row">
+      <button type="button" class="btn btn-back" onclick="prevStep()">← Späť</button>
+      <button type="button" class="btn btn-next" onclick="nextStep()">Pokračovať →</button>
+    </div>
+  </div>
+
+  <!-- STEP 4: Interior -->
+  <div class="step" data-step="4">
+    <div class="card">
+      <h2>Interiér</h2>
+      <p class="desc">Ohodnoťte prvky interiéru na škále 1–5</p>
+      <table class="rating-table">
+        <thead><tr><th></th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th></tr></thead>
+        <tbody>
+          <tr><td>Prvý dojem z interiéru</td><td colspan="5"><div class="star-group" data-name="int_impression"></div></td></tr>
+          <tr><td>Dizajn volantu</td><td colspan="5"><div class="star-group" data-name="int_steering"></div></td></tr>
+          <tr><td>Prístrojový panel</td><td colspan="5"><div class="star-group" data-name="int_instrument"></div></td></tr>
+          <tr><td>Dizajn konzoly</td><td colspan="5"><div class="star-group" data-name="int_console"></div></td></tr>
+          <tr><td>Rozloženie tlačidiel</td><td colspan="5"><div class="star-group" data-name="int_buttons"></div></td></tr>
+          <tr><td>Radiacej páka</td><td colspan="5"><div class="star-group" data-name="int_gear"></div></td></tr>
+          <tr><td>Ručná brzda</td><td colspan="5"><div class="star-group" data-name="int_handbrake"></div></td></tr>
+          <tr><td>Stredová opierka</td><td colspan="5"><div class="star-group" data-name="int_armrest"></div></td></tr>
+          <tr><td>Ovládanie okien/dverí</td><td colspan="5"><div class="star-group" data-name="int_window_ctrl"></div></td></tr>
+          <tr><td>Odkladacie priestory</td><td colspan="5"><div class="star-group" data-name="int_cubby"></div></td></tr>
+          <tr><td>Dizajn sedadiel</td><td colspan="5"><div class="star-group" data-name="int_seat"></div></td></tr>
+          <tr><td>Výhľad z prvého radu</td><td colspan="5"><div class="star-group" data-name="int_frontview"></div></td></tr>
+          <tr><td>Strešné okno</td><td colspan="5"><div class="star-group" data-name="int_sunroof"></div></td></tr>
+          <tr><td>Farebné prevedenie</td><td colspan="5"><div class="star-group" data-name="int_colors"></div></td></tr>
+          <tr><td><strong>Interiér celkovo</strong></td><td colspan="5"><div class="star-group" data-name="int_general"></div></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="btn-row">
+      <button type="button" class="btn btn-back" onclick="prevStep()">← Späť</button>
+      <button type="button" class="btn btn-next" onclick="nextStep()">Pokračovať →</button>
+    </div>
+  </div>
+
+  <!-- STEP 5: Space -->
+  <div class="step" data-step="5">
+    <div class="card">
+      <h2>Priestor</h2>
+      <p class="desc">Ohodnoťte priestorové dispozície na škále 1–5</p>
+      <table class="rating-table">
+        <thead><tr><th></th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th></tr></thead>
+        <tbody>
+          <tr class="section-row"><td colspan="6">Predný rad</td></tr>
+          <tr><td>Priestor nad hlavou</td><td colspan="5"><div class="star-group" data-name="sp_front_head"></div></td></tr>
+          <tr><td>Priestor pre nohy</td><td colspan="5"><div class="star-group" data-name="sp_front_leg"></div></td></tr>
+          <tr><td>Úložný priestor</td><td colspan="5"><div class="star-group" data-name="sp_front_store"></div></td></tr>
+          <tr><td>Predný rad celkovo</td><td colspan="5"><div class="star-group" data-name="sp_front_general"></div></td></tr>
+          <tr class="section-row"><td colspan="6">Zadný rad</td></tr>
+          <tr><td>Priestor nad hlavou</td><td colspan="5"><div class="star-group" data-name="sp_rear_head"></div></td></tr>
+          <tr><td>Priestor pre nohy</td><td colspan="5"><div class="star-group" data-name="sp_rear_leg"></div></td></tr>
+          <tr><td>Úložný priestor</td><td colspan="5"><div class="star-group" data-name="sp_rear_store"></div></td></tr>
+          <tr><td>Zadný rad celkovo</td><td colspan="5"><div class="star-group" data-name="sp_rear_general"></div></td></tr>
+          <tr class="section-row"><td colspan="6">Batožinový priestor</td></tr>
+          <tr><td>Veľkosť kufra</td><td colspan="5"><div class="star-group" data-name="sp_trunk_size"></div></td></tr>
+          <tr><td>Pohodlie nakladania</td><td colspan="5"><div class="star-group" data-name="sp_trunk_load"></div></td></tr>
+          <tr><td>Kufor celkovo</td><td colspan="5"><div class="star-group" data-name="sp_trunk_general"></div></td></tr>
+          <tr class="section-row"><td colspan="6">Celkovo</td></tr>
+          <tr><td><strong>Priestor celkovo</strong></td><td colspan="5"><div class="star-group" data-name="sp_general"></div></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="btn-row">
+      <button type="button" class="btn btn-back" onclick="prevStep()">← Späť</button>
+      <button type="button" class="btn btn-next" onclick="nextStep()">Pokračovať →</button>
+    </div>
+  </div>
+
+  <!-- STEP 6: Style / Character -->
+  <div class="step" data-step="6">
+    <div class="card">
+      <h2>Charakter vozidla</h2>
+      <p class="desc">Na základe exteriéru, interiéru a priestoru — ktoré slová lepšie vystihujú toto vozidlo? (1 = ľavé slovo, 7 = pravé slovo)</p>
+      <div id="diffContainer">
+        <!-- Generated by JS -->
+      </div>
+    </div>
+    <div class="btn-row">
+      <button type="button" class="btn btn-back" onclick="prevStep()">← Späť</button>
+      <button type="button" class="btn btn-next" onclick="nextStep()">Pokračovať →</button>
+    </div>
+  </div>
+
+  <!-- STEP 7: Test Drive -->
+  <div class="step" data-step="7">
+    <div class="card">
+      <h2>Dynamické hodnotenie — Jazda</h2>
+      <p class="desc">Ohodnoťte jazdné vlastnosti na škále 1–5</p>
+      <table class="rating-table">
+        <thead><tr><th></th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th></tr></thead>
+        <tbody>
+          <tr class="section-row"><td colspan="6">Pohonný systém</td></tr>
+          <tr><td>Rozjazd / akcelerácia</td><td colspan="5"><div class="star-group" data-name="dr_pw_start"></div></td></tr>
+          <tr><td>Zrýchlenie počas jazdy</td><td colspan="5"><div class="star-group" data-name="dr_pw_accel"></div></td></tr>
+          <tr><td>Otáčky motora pri zrýchľovaní</td><td colspan="5"><div class="star-group" data-name="dr_pw_rpm"></div></td></tr>
+          <tr><td>Plynulosť prevodovky</td><td colspan="5"><div class="star-group" data-name="dr_pw_trans"></div></td></tr>
+          <tr class="section-row"><td colspan="6">Brzdový systém</td></tr>
+          <tr><td>Sila potrebná na brzdenie</td><td colspan="5"><div class="star-group" data-name="dr_br_force"></div></td></tr>
+          <tr><td>Odozva bŕzd</td><td colspan="5"><div class="star-group" data-name="dr_br_response"></div></td></tr>
+          <tr><td>Zdvih brzdového pedálu</td><td colspan="5"><div class="star-group" data-name="dr_br_travel"></div></td></tr>
+          <tr><td>Brzdná dráha</td><td colspan="5"><div class="star-group" data-name="dr_br_distance"></div></td></tr>
+          <tr class="section-row"><td colspan="6">NVH (hluk, vibrácie)</td></tr>
+          <tr><td>Hluk na voľnobehu</td><td colspan="5"><div class="star-group" data-name="dr_nvh_idle"></div></td></tr>
+          <tr><td>Hluk motora pri jazde</td><td colspan="5"><div class="star-group" data-name="dr_nvh_engine"></div></td></tr>
+          <tr><td>Hluk vetra pri jazde</td><td colspan="5"><div class="star-group" data-name="dr_nvh_wind"></div></td></tr>
+          <tr><td>Hluk pneumatík / cesty</td><td colspan="5"><div class="star-group" data-name="dr_nvh_road"></div></td></tr>
+          <tr class="section-row"><td colspan="6">Ostatné</td></tr>
+          <tr><td>Ovládateľnosť vozidla</td><td colspan="5"><div class="star-group" data-name="dr_oth_control"></div></td></tr>
+          <tr><td>Stabilita karosérie</td><td colspan="5"><div class="star-group" data-name="dr_oth_stability"></div></td></tr>
+          <tr><td>Presnosť riadenia</td><td colspan="5"><div class="star-group" data-name="dr_oth_steering"></div></td></tr>
+          <tr><td>Tlmenie podvozku</td><td colspan="5"><div class="star-group" data-name="dr_oth_suspension"></div></td></tr>
+        </tbody>
+      </table>
+      <h3>Čo vás najviac potešilo?</h3>
+      <textarea name="satisfied" placeholder="Napíšte, čo sa vám na vozidle páčilo najviac..."></textarea>
+      <h3>Čo by ste zlepšili?</h3>
+      <textarea name="improvements" placeholder="Napíšte, čo by podľa vás malo byť lepšie..."></textarea>
+    </div>
+    <div class="btn-row">
+      <button type="button" class="btn btn-back" onclick="prevStep()">← Späť</button>
+      <button type="button" class="btn btn-next" onclick="nextStep()">Pokračovať →</button>
+    </div>
+  </div>
+
+  <!-- STEP 8: Top 3 Features -->
+  <div class="step" data-step="8">
+    <div class="card">
+      <h2>Top 3 obľúbené vlastnosti</h2>
+      <p class="desc">Vyberte maximálne 3 vlastnosti, ktoré sa vám páčia najviac</p>
+      <div class="feat-counter">Vybraté: <span class="count" id="featCount">0</span> / 3</div>
+      <div class="feat-grid" id="featGrid">
+        <!-- Generated by JS -->
+      </div>
+      <h3>Čo by ste ešte doplnili?</h3>
+      <textarea name="features_other" placeholder="Ak vám chýba nejaká funkcia alebo vlastnosť..."></textarea>
+    </div>
+    <div class="card">
+      <h2>Celkové hodnotenie</h2>
+      <p class="desc">Celkový dojem z vozidla na škále 1–5</p>
+      <table class="rating-table">
+        <thead><tr><th></th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Celkové hodnotenie</strong></td><td colspan="5"><div class="star-group" data-name="overall_rating"></div></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="btn-row">
+      <button type="button" class="btn btn-back" onclick="prevStep()">← Späť</button>
+      <button type="button" class="btn btn-next" onclick="nextStep()">Pokračovať →</button>
+    </div>
+  </div>
+
+  <!-- STEP 9: Competitors + Prices -->
+  <div class="step" data-step="9">
+    <div class="card">
+      <h2>Očakávaná cena</h2>
+      <p class="desc">Akú cenu by ste očakávali za toto vozidlo? (v EUR, s DPH)</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+        <label class="field"><span class="label-text">Najnižšia</span><input type="number" name="price_low" placeholder="€"></label>
+        <label class="field"><span class="label-text">Stredná</span><input type="number" name="price_mid" placeholder="€"></label>
+        <label class="field"><span class="label-text">Najvyššia</span><input type="number" name="price_high" placeholder="€"></label>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Konkurenčné modely</h2>
+      <p class="desc">Ktoré modely považujete za hlavnú konkurenciu? A je toto vozidlo cenovo vyššie, rovnaké, alebo nižšie?</p>
+      <div id="compContainer">
+        <!-- Generated by JS -->
+      </div>
+      <h3>Iný konkurent</h3>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <label class="field"><span class="label-text">Značka + model</span><input type="text" name="comp_other_name" placeholder="napr. Kia Sportage"></label>
+        <label class="field"><span class="label-text">Cenový rozdiel</span>
+          <select name="comp_other_price"><option value="">—</option><option value="higher">Vyššia cena</option><option value="same">Rovnaká</option><option value="lower">Nižšia cena</option></select>
+        </label>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button type="button" class="btn btn-back" onclick="prevStep()">← Späť</button>
+      <button type="button" class="btn btn-next" onclick="nextStep()">Pokračovať →</button>
+    </div>
+  </div>
+
+  <!-- STEP 10: Consumer Portrait (dealers only) + Submit -->
+  <div class="step" data-step="10">
+    <div class="card" id="portraitCard" style="display:none">
+      <h2>Profil potenciálneho zákazníka</h2>
+      <p class="desc">Na základe vašich skúseností s trhom — aký je typický kupujúci tohto vozidla?</p>
+      <h3>Pohlavie</h3>
+      <div class="portrait-grid">
+        <div class="portrait-card">
+          <div class="p-label">Podiel mužov (%)</div>
+          <input type="number" name="portrait_male_pct" min="0" max="100" placeholder="napr. 70" style="text-align:center">
+        </div>
+        <div class="portrait-card">
+          <div class="p-label">Podiel žien (%)</div>
+          <input type="number" name="portrait_female_pct" min="0" max="100" placeholder="napr. 30" style="text-align:center">
+        </div>
+      </div>
+      <h3>Veková skupina (viacero možností)</h3>
+      <div class="age-grid" id="ageGrid">
+        <!-- Generated by JS -->
+      </div>
+    </div>
+    <div class="card">
+      <h2>Odoslanie dotazníka</h2>
+      <p class="desc">Ďakujeme za váš čas. Stlačením tlačidla odošlete všetky odpovede.</p>
+      <button type="button" class="btn btn-submit" onclick="submitForm()" id="submitBtn">✓ Odoslať dotazník</button>
+    </div>
+    <div class="btn-row">
+      <button type="button" class="btn btn-back" onclick="prevStep()">← Späť</button>
+    </div>
+  </div>
+
+  <!-- Thank you -->
+  <div class="step" data-step="11">
+    <div class="thank-you">
+      <div class="icon">✅</div>
+      <h2>Ďakujeme za vyplnenie!</h2>
+      <p>Vaše hodnotenie bolo úspešne odoslané.<br>Veľmi si vážime váš čas a spätnú väzbu.</p>
+      <br>
+      <button type="button" class="btn btn-next" onclick="location.reload()">Vyplniť ďalší dotazník</button>
+    </div>
+  </div>
+
+  </form>
+</div>
+
+<script>
+// ============================================================
+// CONFIG
+// ============================================================
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwMWFHk7PUeiXtZ_yZtaElwDBN_d3PowSW-bK9wlNfGdOwJbZrgz-pFDfVMMFM2XAupEQ/exec';
+
+const TOTAL_STEPS = 10; // 11 = thank you
+let currentStep = 1;
+const formData = {};
+
+// Semantic differential pairs
+const DIFF_PAIRS = [
+  ['Konzervatívne','Kreatívne','style_conservative_creative'],
+  ['Luxusné','Striedme','style_luxury_contracted'],
+  ['Mužské','Ženské','style_man_woman'],
+  ['Mladé','Zrelé','style_young_mature'],
+  ['Tradičné','Módne','style_traditional_fashion'],
+  ['Pokojné','Dynamické','style_sober_dynamic'],
+  ['Rodinné','Biznis','style_home_business'],
+  ['Nesúrodé','Harmonické','style_disprop_concordant'],
+  ['Menej technológií','Technologické','style_lowtech_hightech'],
+  ['Nízka trieda','Vysoká trieda','style_lowend_highend'],
+];
+
+// Features list
+const FEATURES = [
+  {cat:'Vzhľad',items:['Dvojfarebná karoséria','LED predné svetlá','Panoramatické strešné okno','18" kolesá']},
+  {cat:'Pohon',items:['1.5L Turbo','CVT prevodovka','Hybridný pohon (HEV/PHEV)']},
+  {cat:'Technológie',items:['LCD prístrojový panel','HD dotyková obrazovka','CarPlay / Android Auto','GPS navigácia','Bluetooth','Prémiový zvukový systém']},
+  {cat:'Komfort',items:['Kožené sedadlá','Elektrické nastavenie sedadla','Soft-touch materiály','Elektrické 5. dvere','Dvojzónová automatická klíma']},
+  {cat:'Bezpečnosť',items:['ESP','Elektrický posilňovač riadenia','EPB + Auto Hold','Predné bočné airbagy','Záclonové airbagy','360° kamera','BSD + LCA + LKA (asistenty jazdy)']},
+];
+
+// Competitors
+const COMPETITORS = ['Hyundai Tucson','Toyota RAV4','Honda CR-V','Škoda Kodiaq','Kia Sportage'];
+
+// Age ranges for dealer portrait
+const AGE_RANGES = ['do 20','21–25','26–30','31–35','36–40','41–45','46–50','51–55','56–60','nad 60'];
+
+// ============================================================
+// INIT
+// ============================================================
+function init(){
+  buildStarRatings();
+  buildDiffScales();
+  buildFeatureGrid();
+  buildCompetitors();
+  buildAgeGrid();
+  buildStepDots();
+  updateProgress();
+}
+
+function buildStepDots(){
+  const c=document.getElementById('stepDots');
+  for(let i=1;i<=TOTAL_STEPS;i++){
+    const d=document.createElement('div');
+    d.className='step-dot'+(i===1?' active':'');
+    d.dataset.step=i;
+    c.appendChild(d);
+  }
+}
+
+function updateProgress(){
+  const pct=((currentStep-1)/(TOTAL_STEPS-1))*100;
+  document.getElementById('progressFill').style.width=pct+'%';
+  document.getElementById('progressText').textContent=`Krok ${currentStep} z ${TOTAL_STEPS}`;
+  document.querySelectorAll('.step-dot').forEach(d=>{
+    const s=parseInt(d.dataset.step);
+    d.className='step-dot'+(s===currentStep?' active':'')+(s<currentStep?' done':'');
+  });
+}
+
+// ============================================================
+// STAR RATINGS
+// ============================================================
+function buildStarRatings(){
+  document.querySelectorAll('.star-group').forEach(g=>{
+    const name=g.dataset.name;
+    const oldTd=g.parentElement; // <td colspan="5">
+    const tr=oldTd.parentElement; // <tr>
+    tr.removeChild(oldTd);
+    for(let i=1;i<=5;i++){
+      const td=document.createElement('td');
+      td.className='star-cell';
+      const btn=document.createElement('button');
+      btn.type='button';
+      btn.className='star-btn';
+      btn.textContent='★';
+      btn.dataset.val=i;
+      btn.dataset.name=name;
+      btn.onclick=()=>{
+        formData[name]=i;
+        tr.querySelectorAll('.star-btn').forEach((b,idx)=>{
+          b.classList.toggle('lit',idx<i);
+        });
+      };
+      td.appendChild(btn);
+      tr.appendChild(td);
+    }
+  });
+}
+
+// ============================================================
+// SEMANTIC DIFFERENTIAL
+// ============================================================
+function buildDiffScales(){
+  const c=document.getElementById('diffContainer');
+  DIFF_PAIRS.forEach(([left,right,name])=>{
+    const row=document.createElement('div');
+    row.className='diff-row';
+    row.innerHTML=`<div class="diff-label left">${left}</div><div class="diff-dots"></div><div class="diff-label right">${right}</div>`;
+    const dots=row.querySelector('.diff-dots');
+    for(let i=1;i<=7;i++){
+      const d=document.createElement('div');
+      d.className='diff-dot';
+      d.textContent=i;
+      d.onclick=()=>{
+        formData[name]=i;
+        dots.querySelectorAll('.diff-dot').forEach(dd=>dd.classList.remove('selected'));
+        d.classList.add('selected');
+      };
+      dots.appendChild(d);
+    }
+    c.appendChild(row);
+  });
+}
+
+// ============================================================
+// FEATURES
+// ============================================================
+let featSelected=0;
+function buildFeatureGrid(){
+  const g=document.getElementById('featGrid');
+  FEATURES.forEach(({cat,items})=>{
+    const h=document.createElement('div');
+    h.className='feat-cat';
+    h.textContent=cat;
+    g.appendChild(h);
+    items.forEach(item=>{
+      const d=document.createElement('div');
+      d.className='feat-item';
+      d.innerHTML=`<div class="feat-check"></div><span>${item}</span>`;
+      d.onclick=()=>{
+        if(d.classList.contains('checked')){
+          d.classList.remove('checked');
+          featSelected--;
+        } else {
+          if(featSelected>=3) return;
+          d.classList.add('checked');
+          featSelected++;
+        }
+        document.getElementById('featCount').textContent=featSelected;
+      };
+      g.appendChild(d);
+    });
+  });
+}
+
+// ============================================================
+// COMPETITORS
+// ============================================================
+function buildCompetitors(){
+  const c=document.getElementById('compContainer');
+  COMPETITORS.forEach((name,i)=>{
+    const row=document.createElement('div');
+    row.className='comp-row';
+    const opts=['higher','same','lower'];
+    const labels=['Vyššia','Rovnaká','Nižšia'];
+    row.innerHTML=`
+      <div class="comp-name">${name}</div>
+      <div class="price-radio" data-comp="${i}">
+        ${opts.map((o,j)=>`<label class="pr-opt" onclick="selectComp(this,${i},'${o}')"><span>${labels[j]}</span></label>`).join('')}
+      </div>
+      <input type="number" placeholder="±%" style="width:60px;padding:4px 6px;font-size:.8em;background:var(--navy);border:1px solid var(--border);border-radius:4px;color:var(--text);text-align:center" data-field="comp_${i}_pct">
+    `;
+    c.appendChild(row);
+  });
+}
+function selectComp(el,i,val){
+  el.parentElement.querySelectorAll('.pr-opt').forEach(l=>l.classList.remove('sel'));
+  el.classList.add('sel');
+  formData['comp_'+i+'_dir']=val;
+}
+
+// ============================================================
+// AGE GRID (dealer portrait)
+// ============================================================
+function buildAgeGrid(){
+  const g=document.getElementById('ageGrid');
+  AGE_RANGES.forEach(range=>{
+    const d=document.createElement('div');
+    d.className='age-item';
+    d.textContent=range;
+    d.onclick=()=>{
+      d.classList.toggle('checked');
+    };
+    g.appendChild(d);
+  });
+}
+
+// ============================================================
+// CARD SELECTOR
+// ============================================================
+function selectCard(el,type){
+  el.parentElement.querySelectorAll('.sel-card').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+  formData[type]=el.dataset.value;
+  // Show/hide dealer portrait
+  if(type==='respondent'){
+    const portrait=document.getElementById('portraitCard');
+    if(portrait) portrait.style.display=el.dataset.value==='Díler'?'block':'none';
+  }
+}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+function nextStep(){
+  if(currentStep===1){
+    if(!formData.model){alert('Prosím vyberte model.');return;}
+    if(!formData.respondent){alert('Prosím vyberte typ respondenta.');return;}
+  }
+  if(currentStep===2){
+    const name=document.querySelector('[name="name"]').value;
+    const company=document.querySelector('[name="company"]').value;
+    const city=document.querySelector('[name="city"]').value;
+    if(!name||!company||!city){alert('Prosím vyplňte povinné polia (meno, spoločnosť, mesto).');return;}
+  }
+  if(currentStep<TOTAL_STEPS+1){
+    document.querySelector(`.step[data-step="${currentStep}"]`).classList.remove('active');
+    currentStep++;
+    document.querySelector(`.step[data-step="${currentStep}"]`).classList.add('active');
+    updateProgress();
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+}
+function prevStep(){
+  if(currentStep>1){
+    document.querySelector(`.step[data-step="${currentStep}"]`).classList.remove('active');
+    currentStep--;
+    document.querySelector(`.step[data-step="${currentStep}"]`).classList.add('active');
+    updateProgress();
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+}
+
+// ============================================================
+// SUBMIT
+// ============================================================
+function submitForm(){
+  const btn=document.getElementById('submitBtn');
+  btn.disabled=true;
+  btn.textContent='Odosielam...';
+
+  // Collect all data
+  const data={...formData};
+  data.timestamp=new Date().toISOString();
+
+  // Text inputs
+  document.querySelectorAll('input[name],textarea[name],select[name]').forEach(el=>{
+    if(el.value) data[el.name]=el.value;
+  });
+
+  // Competitor percentages
+  document.querySelectorAll('[data-field]').forEach(el=>{
+    if(el.value) data[el.dataset.field]=el.value;
+  });
+
+  // Features
+  const feats=[];
+  document.querySelectorAll('.feat-item.checked span').forEach(s=>feats.push(s.textContent));
+  data.top3_features=feats.join(', ');
+
+  // Age ranges (dealer)
+  const ages=[];
+  document.querySelectorAll('.age-item.checked').forEach(d=>ages.push(d.textContent));
+  data.portrait_age_ranges=ages.join(', ');
+
+  console.log('Survey data:',data);
+
+  // Send to Google Sheets
+  if(GOOGLE_SCRIPT_URL){
+    fetch(GOOGLE_SCRIPT_URL,{
+      method:'POST',
+      mode:'no-cors',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(data)
+    }).then(()=>{
+      nextStep();
+    }).catch(err=>{
+      console.error(err);
+      alert('Chyba pri odosielaní. Skúste znova.');
+      btn.disabled=false;
+      btn.textContent='✓ Odoslať dotazník';
+    });
+  } else {
+    // No backend — show data in console and proceed
+    console.log('No Google Script URL configured. Data logged to console.');
+    nextStep();
+  }
+}
+
+// Init on load
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
