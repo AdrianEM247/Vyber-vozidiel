@@ -258,16 +258,20 @@ const db = firebase.database();
 const vehiclesRef = db.ref('vyber-jun26');
 
 // =============================================
-// VEHICLES DATA — 75 vozidiel (Push Jún 2026 V2, UNSOLD)
+// VEHICLES DATA — 86 vozidiel (Push Jún 2026 V2, ALL)
 // =============================================
 const VEHICLES = [
+  {vin:"LVVDD21B6TC082665",model:"JAECOO 7",dealer:"OSK0010"},
   {vin:"LVUGTBCD1TDE67955",model:"OMODA 7",dealer:"OSK0010"},
   {vin:"LVUGTB224SDH71361",model:"JAECOO 5",dealer:"OSK0020"},
   {vin:"LVUGTBAD1TDE54416",model:"JAECOO 5",dealer:"OSK0020"},
+  {vin:"LVUGTBAD2TDE54473",model:"JAECOO 5",dealer:"OSK0020"},
   {vin:"LNNBBDEE8SC179815",model:"JAECOO 7",dealer:"OSK0020"},
   {vin:"LVVDD21B1TC058516",model:"JAECOO 7",dealer:"OSK0020"},
   {vin:"LVUGTBHD2TD132161",model:"OMODA 5",dealer:"OSK0020"},
+  {vin:"LVUGTBHD4TD132212",model:"OMODA 5",dealer:"OSK0020"},
   {vin:"LVVDB21B1TD094416",model:"OMODA 5",dealer:"OSK0020"},
+  {vin:"LVVDB21B1TD132467",model:"OMODA 5",dealer:"OSK0020"},
   {vin:"LVVDB21B2SDJ54136",model:"OMODA 5",dealer:"OSK0020"},
   {vin:"LVVDB21B4SDJ54140",model:"OMODA 5",dealer:"OSK0020"},
   {vin:"LVVDB21B7TD132473",model:"OMODA 5",dealer:"OSK0020"},
@@ -277,7 +281,9 @@ const VEHICLES = [
   {vin:"LNNBDDEH7TG018306",model:"OMODA 9",dealer:"OSK0020"},
   {vin:"LNNBDDEH8SG123032",model:"OMODA 9",dealer:"OSK0020"},
   {vin:"LNNBDDEH8TG021506",model:"OMODA 9",dealer:"OSK0020"},
+  {vin:"LNNBDDEHXTG007882",model:"OMODA 9",dealer:"OSK0020"},
   {vin:"LVVDD21B3TC082669",model:"JAECOO 7",dealer:"OSK0030"},
+  {vin:"LVUGTBHD3TD132153",model:"OMODA 5",dealer:"OSK0030"},
   {vin:"LVVDB21B0TD132475",model:"OMODA 5",dealer:"OSK0030"},
   {vin:"LNNBDDEH1TG021508",model:"OMODA 9",dealer:"OSK0030"},
   {vin:"LVUGTB224SDH93750",model:"JAECOO 5",dealer:"OSK0040"},
@@ -296,7 +302,11 @@ const VEHICLES = [
   {vin:"LVVDD21B5TC058308",model:"JAECOO 7",dealer:"OSK0060"},
   {vin:"LVUGTBCD4TDE67934",model:"OMODA 7",dealer:"OSK0060"},
   {vin:"LNNBBDEE2SC281787",model:"JAECOO 7",dealer:"OSK0080"},
+  {vin:"LNNBBDEE5SC281797",model:"JAECOO 7",dealer:"OSK0080"},
+  {vin:"LVVDD21B3TC082817",model:"JAECOO 7",dealer:"OSK0080"},
+  {vin:"LVVDD21B6TC082682",model:"JAECOO 7",dealer:"OSK0080"},
   {vin:"LVUGTBCD2TDE67916",model:"OMODA 7",dealer:"OSK0080"},
+  {vin:"LNNBDDEH0SG129245",model:"OMODA 9",dealer:"OSK0080"},
   {vin:"LNNABDCX5TD058560",model:"OMODA 5",dealer:"OSK0090"},
   {vin:"LVVDB21B9TD132491",model:"OMODA 5",dealer:"OSK0090"},
   {vin:"LNNBDDEH1TG021492",model:"OMODA 9",dealer:"OSK0090"},
@@ -323,6 +333,7 @@ const VEHICLES = [
   {vin:"LVVDB21B6TD132478",model:"OMODA 5",dealer:"OSK0120"},
   {vin:"LVUGTB221TDE99420",model:"JAECOO 5",dealer:"OSK0130"},
   {vin:"LVUGTB225TDE98044",model:"JAECOO 5",dealer:"OSK0130"},
+  {vin:"LVUGTBHD9TD132156",model:"OMODA 5",dealer:"OSK0130"},
   {vin:"LVVDB21B5TD092409",model:"OMODA 5",dealer:"OSK0130"},
   {vin:"LNNBDDEH7TG021495",model:"OMODA 9",dealer:"OSK0130"},
   {vin:"LVVDB21B8TD132482",model:"OMODA 5",dealer:"OSK0140"},
