@@ -244,7 +244,7 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 <script>
@@ -707,7 +707,7 @@ async function resetStatuses() {
 // =============================================
 // EXPORT
 // =============================================
-function exportExcel() {
+async function exportExcel() {
   const search = document.getElementById('searchMy').value.toLowerCase();
   const modelFilter = document.getElementById('filterModel').value;
   const statusFilter = document.getElementById('filterStatus').value;
@@ -726,22 +726,232 @@ function exportExcel() {
 
   if (filtered.length === 0) { showToast('Žiadne vozidlá na export', 'error'); return; }
 
-  const rows = filtered.map((v, i) => ({
-    '#': i + 1,
-    'VIN': v.VIN,
-    'Vozidlo': v.Vozidlo || '',
-    'Stav registrácie': pendingChanges[v.VIN] ?? v.RegistrationStatus ?? '',
-    'Dealer': v.Dealer || dealerName,
-    'Doplnené dílerom': v.AddedByDealer ? 'Áno' : 'Nie'
-  }));
+  const wb = new ExcelJS.Workbook();
+  const today = new Date().toLocaleDateString('sk-SK');
+  const monthLabel = document.querySelector('.login-card .card-header p')?.textContent || '';
 
-  const ws = XLSX.utils.json_to_sheet(rows);
-  ws['!cols'] = [{wch:4},{wch:20},{wch:16},{wch:25},{wch:35},{wch:16}];
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, 'Vozidlá');
-  const today = new Date().toISOString().slice(0, 10);
-  XLSX.writeFile(wb, `vyber-vozidiel_${currentDealer}_${today}.xlsx`);
-  showToast(`Exportovaných ${rows.length} vozidiel`, 'success');
+  // Style constants
+  const NAVY = { argb: 'FF2B3A67' };
+  const WHITE_FONT = { name: 'Calibri', bold: true, size: 11, color: { argb: 'FFFFFFFF' } };
+  const TITLE_FONT = { name: 'Calibri', bold: true, size: 14, color: { argb: 'FF2B3A67' } };
+  const TOTAL_FILL = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFD9E2F3' } };
+  const BORDER = { top: { style: 'thin', color: { argb: 'FFB4C6E7' } }, bottom: { style: 'thin', color: { argb: 'FFB4C6E7' } }, left: { style: 'thin', color: { argb: 'FFB4C6E7' } }, right: { style: 'thin', color: { argb: 'FFB4C6E7' } } };
+  const STATUS_COLORS = {
+    'registrované': 'FFC6EFCE',
+    'bude registrované': 'FFBDD7EE',
+    'môže byť registrované': 'FFFCE4D6',
+    'bez statusu': 'FFF2F2F2'
+  };
+  const STATUS_COLS_ORDER = ['registrované', 'bude registrované', 'môže byť registrované', 'bez statusu'];
+
+  // ===== ADMIN: SÚHRN + DETAIL =====
+  if (isAdmin) {
+    // --- SHEET 1: SÚHRN (Pivot) ---
+    const ws1 = wb.addWorksheet('SÚHRN');
+    ws1.columns = [
+      { width: 5 }, { width: 12 }, { width: 28 },
+      { width: 18 }, { width: 18 }, { width: 22 }, { width: 18 }, { width: 12 }
+    ];
+
+    // Title
+    ws1.mergeCells('A1:H1');
+    const titleCell = ws1.getCell('A1');
+    titleCell.value = `VÝBER VOZIDIEL — ${monthLabel.toUpperCase() || 'EXPORT'}`;
+    titleCell.font = TITLE_FONT;
+    titleCell.alignment = { horizontal: 'left', vertical: 'middle' };
+    ws1.getRow(1).height = 30;
+
+    // Date
+    ws1.mergeCells('A2:H2');
+    ws1.getCell('A2').value = `Export: ${today}`;
+    ws1.getCell('A2').font = { name: 'Calibri', size: 10, color: { argb: 'FF888888' } };
+
+    // Headers row 4
+    const headers = ['#', 'Kód dílera', 'Díler', 'Registrované', 'Bude registrované', 'Môže byť registrované', 'Bez statusu', 'CELKOM'];
+    const hRow = ws1.getRow(4);
+    headers.forEach((h, i) => {
+      const cell = hRow.getCell(i + 1);
+      cell.value = h;
+      cell.font = WHITE_FONT;
+      cell.fill = { type: 'pattern', pattern: 'solid', fgColor: NAVY };
+      cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+      cell.border = BORDER;
+    });
+    hRow.height = 35;
+
+    // Build pivot data
+    const dealerCodes = [...new Set(vehicles.map(v => v.DealerCode))].sort();
+    const pivot = {};
+    dealerCodes.forEach(code => {
+      pivot[code] = { name: '', counts: {} };
+      STATUS_COLS_ORDER.forEach(s => pivot[code].counts[s] = 0);
+    });
+    vehicles.forEach(v => {
+      const code = v.DealerCode;
+      if (!pivot[code]) return;
+      pivot[code].name = v.Dealer || DEALERS[code] || code;
+      const status = (pendingChanges[v.VIN] ?? v.RegistrationStatus ?? '').toLowerCase() || 'bez statusu';
+      const matched = STATUS_COLS_ORDER.find(s => status === s) || 'bez statusu';
+      pivot[code].counts[matched]++;
+    });
+
+    // Data rows
+    dealerCodes.forEach((code, i) => {
+      const row = ws1.getRow(5 + i);
+      const d = pivot[code];
+      const total = Object.values(d.counts).reduce((a, b) => a + b, 0);
+
+      row.getCell(1).value = i + 1;
+      row.getCell(1).alignment = { horizontal: 'center' };
+      row.getCell(1).border = BORDER;
+
+      row.getCell(2).value = code;
+      row.getCell(2).font = { name: 'Calibri', size: 10, color: { argb: 'FF666666' } };
+      row.getCell(2).border = BORDER;
+
+      row.getCell(3).value = d.name;
+      row.getCell(3).border = BORDER;
+
+      STATUS_COLS_ORDER.forEach((status, j) => {
+        const cell = row.getCell(4 + j);
+        const val = d.counts[status];
+        cell.value = val > 0 ? val : '';
+        cell.alignment = { horizontal: 'center' };
+        cell.border = BORDER;
+        if (val > 0) {
+          cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: STATUS_COLORS[status] } };
+        }
+      });
+
+      row.getCell(8).value = total;
+      row.getCell(8).font = { name: 'Calibri', bold: true };
+      row.getCell(8).alignment = { horizontal: 'center' };
+      row.getCell(8).border = BORDER;
+    });
+
+    // Totals row
+    const tRow = ws1.getRow(5 + dealerCodes.length);
+    tRow.getCell(3).value = 'CELKOM';
+    tRow.getCell(3).font = { name: 'Calibri', bold: true, size: 11 };
+    tRow.getCell(3).fill = TOTAL_FILL;
+    tRow.getCell(3).border = BORDER;
+
+    STATUS_COLS_ORDER.forEach((status, j) => {
+      const totalVal = dealerCodes.reduce((sum, code) => sum + pivot[code].counts[status], 0);
+      const cell = tRow.getCell(4 + j);
+      cell.value = totalVal;
+      cell.font = { name: 'Calibri', bold: true, size: 11 };
+      cell.fill = TOTAL_FILL;
+      cell.alignment = { horizontal: 'center' };
+      cell.border = BORDER;
+    });
+
+    const grandTotal = dealerCodes.reduce((sum, code) => sum + Object.values(pivot[code].counts).reduce((a, b) => a + b, 0), 0);
+    tRow.getCell(8).value = grandTotal;
+    tRow.getCell(8).font = { name: 'Calibri', bold: true, size: 12 };
+    tRow.getCell(8).fill = TOTAL_FILL;
+    tRow.getCell(8).alignment = { horizontal: 'center' };
+    tRow.getCell(8).border = BORDER;
+
+    // --- SHEET 2: DETAIL ---
+    const ws2 = wb.addWorksheet('DETAIL');
+    ws2.columns = [
+      { width: 24 }, { width: 16 }, { width: 12 }, { width: 28 }, { width: 24 }
+    ];
+
+    ws2.mergeCells('A1:E1');
+    ws2.getCell('A1').value = 'VÝBER VOZIDIEL — DETAIL';
+    ws2.getCell('A1').font = TITLE_FONT;
+    ws2.getRow(1).height = 30;
+
+    const dHeaders = ['VIN', 'Model', 'Kód dílera', 'Díler', 'Status'];
+    const dhRow = ws2.getRow(3);
+    dHeaders.forEach((h, i) => {
+      const cell = dhRow.getCell(i + 1);
+      cell.value = h;
+      cell.font = WHITE_FONT;
+      cell.fill = { type: 'pattern', pattern: 'solid', fgColor: NAVY };
+      cell.alignment = { horizontal: 'center', vertical: 'middle' };
+      cell.border = BORDER;
+    });
+    dhRow.height = 25;
+
+    // Sort by dealer, then model, then VIN
+    const sortedVehicles = [...filtered].sort((a, b) =>
+      (a.DealerCode || '').localeCompare(b.DealerCode || '') ||
+      (a.Vozidlo || '').localeCompare(b.Vozidlo || '') ||
+      (a.VIN || '').localeCompare(b.VIN || '')
+    );
+
+    sortedVehicles.forEach((v, i) => {
+      const row = ws2.getRow(4 + i);
+      const status = (pendingChanges[v.VIN] ?? v.RegistrationStatus ?? '').toLowerCase() || 'bez statusu';
+      const matched = STATUS_COLS_ORDER.find(s => status === s) || 'bez statusu';
+
+      row.getCell(1).value = v.VIN;
+      row.getCell(1).font = { name: 'Consolas', size: 10 };
+      row.getCell(1).border = BORDER;
+
+      row.getCell(2).value = v.Vozidlo || '';
+      row.getCell(2).border = BORDER;
+
+      row.getCell(3).value = v.DealerCode || '';
+      row.getCell(3).font = { name: 'Calibri', size: 10, color: { argb: 'FF666666' } };
+      row.getCell(3).border = BORDER;
+
+      row.getCell(4).value = v.Dealer || DEALERS[v.DealerCode] || '';
+      row.getCell(4).border = BORDER;
+
+      const sCell = row.getCell(5);
+      sCell.value = matched;
+      sCell.alignment = { horizontal: 'center' };
+      sCell.border = BORDER;
+      if (STATUS_COLORS[matched]) {
+        sCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: STATUS_COLORS[matched] } };
+      }
+    });
+  } else {
+    // ===== DEALER: simple flat list =====
+    const ws = wb.addWorksheet('Vozidlá');
+    ws.columns = [
+      { width: 4 }, { width: 20 }, { width: 16 }, { width: 25 }, { width: 35 }, { width: 16 }
+    ];
+    const hRow = ws.getRow(1);
+    ['#', 'VIN', 'Vozidlo', 'Stav registrácie', 'Dealer', 'Doplnené dílerom'].forEach((h, i) => {
+      const cell = hRow.getCell(i + 1);
+      cell.value = h;
+      cell.font = WHITE_FONT;
+      cell.fill = { type: 'pattern', pattern: 'solid', fgColor: NAVY };
+      cell.alignment = { horizontal: 'center', vertical: 'middle' };
+      cell.border = BORDER;
+    });
+    filtered.forEach((v, i) => {
+      const row = ws.getRow(2 + i);
+      row.getCell(1).value = i + 1;
+      row.getCell(2).value = v.VIN;
+      row.getCell(2).font = { name: 'Consolas', size: 10 };
+      row.getCell(3).value = v.Vozidlo || '';
+      row.getCell(4).value = pendingChanges[v.VIN] ?? v.RegistrationStatus ?? '';
+      row.getCell(5).value = v.Dealer || dealerName;
+      row.getCell(6).value = v.AddedByDealer ? 'Áno' : 'Nie';
+      for (let c = 1; c <= 6; c++) row.getCell(c).border = BORDER;
+    });
+  }
+
+  // Generate and download
+  const buffer = await wb.xlsx.writeBuffer();
+  const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  const dCode = currentDealer || 'admin';
+  const todayISO = new Date().toISOString().slice(0, 10);
+  a.download = `vyber-vozidiel_${dCode}_${todayISO}.xlsx`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast(`Exportovaných ${filtered.length} vozidiel${isAdmin ? ' + sumár' : ''}`, 'success');
 }
 
 // =============================================
