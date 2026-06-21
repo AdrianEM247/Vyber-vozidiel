@@ -779,17 +779,16 @@ async function exportExcel() {
     });
     hRow.height = 35;
 
-    // Build pivot data
-    const dealerCodes = [...new Set(vehicles.map(v => v.DealerCode))].sort();
+    // Build pivot data — v.Dealer contains OSK code
+    const dealerCodes = [...new Set(vehicles.map(v => v.Dealer))].filter(Boolean).sort();
     const pivot = {};
     dealerCodes.forEach(code => {
-      pivot[code] = { name: '', counts: {} };
+      pivot[code] = { name: DEALERS[code] || code, counts: {} };
       STATUS_COLS_ORDER.forEach(s => pivot[code].counts[s] = 0);
     });
     vehicles.forEach(v => {
-      const code = v.DealerCode;
-      if (!pivot[code]) return;
-      pivot[code].name = v.Dealer || DEALERS[code] || code;
+      const code = v.Dealer;
+      if (!code || !pivot[code]) return;
       const status = (pendingChanges[v.VIN] ?? v.RegistrationStatus ?? '').toLowerCase() || 'bez statusu';
       const matched = STATUS_COLS_ORDER.find(s => status === s) || 'bez statusu';
       pivot[code].counts[matched]++;
@@ -878,7 +877,7 @@ async function exportExcel() {
 
     // Sort by dealer, then model, then VIN
     const sortedVehicles = [...filtered].sort((a, b) =>
-      (a.DealerCode || '').localeCompare(b.DealerCode || '') ||
+      (a.Dealer || '').localeCompare(b.Dealer || '') ||
       (a.Vozidlo || '').localeCompare(b.Vozidlo || '') ||
       (a.VIN || '').localeCompare(b.VIN || '')
     );
@@ -895,11 +894,11 @@ async function exportExcel() {
       row.getCell(2).value = v.Vozidlo || '';
       row.getCell(2).border = BORDER;
 
-      row.getCell(3).value = v.DealerCode || '';
+      row.getCell(3).value = v.Dealer || '';
       row.getCell(3).font = { name: 'Calibri', size: 10, color: { argb: 'FF666666' } };
       row.getCell(3).border = BORDER;
 
-      row.getCell(4).value = v.Dealer || DEALERS[v.DealerCode] || '';
+      row.getCell(4).value = DEALERS[v.Dealer] || v.Dealer || '';
       row.getCell(4).border = BORDER;
 
       const sCell = row.getCell(5);
